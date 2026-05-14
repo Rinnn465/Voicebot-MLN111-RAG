@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# Vector DB
+chroma_db/
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
