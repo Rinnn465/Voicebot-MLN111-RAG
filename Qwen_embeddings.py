@@ -9,6 +9,7 @@ class Qwen3Embedding4B:
             "Qwen/Qwen3-Embedding-4B",
             device="cuda",
             trust_remote_code=True,
+            cache_folder=r"D:\AI_Cache\sentence_transformers",
         )
 
         self.query_instruction = (

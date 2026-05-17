@@ -1,15 +1,34 @@
 import os
+from pathlib import Path
 from typing import Any, Dict
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from rag import RAGPipeline
 
 load_dotenv()
 
+BASE_DIR = Path(__file__).resolve().parent
+WEB_DIR = BASE_DIR / "web"
+STATIC_DIR = BASE_DIR / "static"
+
 app = FastAPI(title="Voicebot MLN111 RAG API", version="1.0.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
 class AskRequest(BaseModel):
@@ -29,8 +48,28 @@ def get_rag() -> RAGPipeline:
     global _rag
     if _rag is None:
         db_path = os.getenv("CHROMA_DIR", "chroma_db")
-        _rag = RAGPipeline(persist_dir=db_path, top_k=int(os.getenv("TOP_K", "4")))
+        top_k = int(os.getenv("TOP_K", "4"))
+        _rag = RAGPipeline(persist_dir=db_path, top_k=top_k)
     return _rag
+
+@app.on_event("startup")
+def warm_up_rag():
+    rag = get_rag()
+    rag.retrieve("khởi động hệ thống")
+    print("[APP] RAG warm-up completed.")
+
+
+@app.get("/")
+def serve_homepage():
+    index_file = WEB_DIR / "index.html"
+
+    if not index_file.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="Không tìm thấy file web/index.html",
+        )
+
+    return FileResponse(str(index_file))
 
 
 @app.get("/health")
@@ -42,14 +81,13 @@ def health_check():
 def ask(req: AskRequest):
     try:
         rag = get_rag()
-        result = rag.answer(req.question)
+        result = rag.answer(req.question.strip())
         return AskResponse(**result)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e)) from e
 
-
-# Endpoint gợi ý để Agora callback text (nếu cần tích hợp realtime gateway)
 @app.post("/voice/event")
 def voice_event(payload: Dict[str, Any]):
-    """Stub endpoint để bạn map sự kiện từ Agora AI Realtime Voice về backend."""
     return {"received": True, "payload": payload}

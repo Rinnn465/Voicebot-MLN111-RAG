@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Trợ lý Triết học Mác–Lênin</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    .answer-markdown p {
+      margin: 0.75rem 0;
+    }
+
+    .answer-markdown ol,
+    .answer-markdown ul {
+      margin: 0.75rem 0;
+      padding-left: 1.5rem;
+    }
+
+    .answer-markdown ol {
+      list-style-type: decimal;
+    }
+
+    .answer-markdown ul {
+      list-style-type: disc;
+    }
+
+    .answer-markdown li {
+      margin: 0.4rem 0;
+    }
+
+    .answer-markdown strong {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .answer-markdown h1,
+    .answer-markdown h2,
+    .answer-markdown h3 {
+      margin-top: 1rem;
+      margin-bottom: 0.6rem;
+      color: #ffffff;
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <main class="mx-auto flex min-h-screen w-full max-w-6xl items-center px-4 py-10 sm:px-6 lg:px-8">
+    <div class="grid w-full gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+
+      <!-- Left hero -->
+      <section class="flex flex-col justify-center">
+        <div class="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-indigo-400/20 bg-indigo-400/10 px-4 py-2 text-sm font-medium text-indigo-200">
+          <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+          Trợ lý học tập MLN111
+        </div>
+
+        <h1 class="max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+          Hỏi đáp
+          <span class="bg-gradient-to-r from-indigo-300 via-sky-300 to-cyan-200 bg-clip-text text-transparent">
+            Triết học Mác–Lênin
+          </span>
+        </h1>
+
+        <p class="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+          Hệ thống hỗ trợ giải đáp các câu hỏi thuộc nội dung Chương 2,
+          giúp người học ôn tập khái niệm và nắm ý chính một cách dễ hiểu.
+        </p>
+
+        <div class="mt-8 rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
+          <p class="text-sm font-medium uppercase tracking-[0.18em] text-slate-400">
+            Gợi ý câu hỏi
+          </p>
+
+          <div class="mt-4 flex flex-wrap gap-3">
+            <button
+              type="button"
+              class="suggestion-btn rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+              data-question="Vật chất là gì theo triết học Mác-Lênin?"
+            >
+              Vật chất là gì?
+            </button>
+
+            <button
+              type="button"
+              class="suggestion-btn rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+              data-question="Ý thức có nguồn gốc như thế nào?"
+            >
+              Nguồn gốc của ý thức?
+            </button>
+
+            <button
+              type="button"
+              class="suggestion-btn rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+              data-question="Mối quan hệ giữa vật chất và ý thức là gì?"
+            >
+              Vật chất và ý thức?
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chat card -->
+      <section class="rounded-3xl border border-white/10 bg-white/[0.08] p-5 shadow-2xl shadow-indigo-950/40 backdrop-blur-xl sm:p-6">
+        <div class="mb-6">
+          <h2 class="text-2xl font-semibold text-white">Đặt câu hỏi</h2>
+          <p class="mt-2 text-sm leading-6 text-slate-300">
+            Nhập câu hỏi về nội dung Chương 2 để hệ thống hỗ trợ giải đáp.
+          </p>
+        </div>
+
+        <label for="question" class="mb-3 block text-sm font-medium text-slate-200">
+          Câu hỏi của bạn
+        </label>
+
+        <textarea
+          id="question"
+          rows="6"
+          placeholder="Ví dụ: Mối quan hệ giữa vật chất và ý thức là gì?"
+          class="w-full resize-none rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-4 text-base leading-7 text-white outline-none transition placeholder:text-slate-500 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-400/15"
+        ></textarea>
+
+        <div class="mt-4 flex flex-col gap-3 sm:flex-row">
+          <button
+            id="askBtn"
+            class="inline-flex flex-1 items-center justify-center rounded-2xl bg-indigo-500 px-5 py-3.5 font-semibold text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Gửi câu hỏi
+          </button>
+
+          <button
+            id="clearBtn"
+            class="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-5 py-3.5 font-semibold text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Xóa
+          </button>
+        </div>
+
+        <div
+          id="status"
+          class="mt-4 min-h-6 text-sm text-slate-300"
+        ></div>
+
+        <section
+          id="result"
+          class="mt-6 hidden rounded-2xl border border-white/10 bg-slate-900/65 p-5"
+        >
+          <h3 class="mb-4 text-lg font-semibold text-white">Câu trả lời</h3>
+
+          <div
+            id="answer"
+            class="answer-markdown text-sm leading-7 text-slate-100 sm:text-base"
+          ></div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
