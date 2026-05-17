@@ -3,8 +3,7 @@ import time
 from typing import Dict, List
 
 from dotenv import load_dotenv
-from google import genai
-from google.genai import types
+from cerebras.cloud.sdk import Cerebras
 from langchain_chroma import Chroma
 
 from Qwen_embeddings import Qwen3Embedding4B
@@ -22,11 +21,9 @@ class RAGPipeline:
     def __init__(self, persist_dir: str = "chroma_db", top_k: int = 4):
         self.top_k = top_k
 
-        api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+        api_key = os.getenv("CEREBRAS_API_KEY")
         if not api_key:
-            raise ValueError(
-                "Thiếu GEMINI_API_KEY hoặc GOOGLE_API_KEY trong file .env"
-            )
+            raise ValueError("Thiếu CEREBRAS_API_KEY trong file .env")
 
         self.embeddings = Qwen3Embedding4B()
 
@@ -35,13 +32,14 @@ class RAGPipeline:
             embedding_function=self.embeddings,
         )
 
-        self.client = genai.Client(api_key=api_key)
+        self.client = Cerebras(api_key=api_key)
+
         self.model = os.getenv(
-            "GEMINI_MODEL",
-            "gemini-3.1-flash-lite-preview",
+            "CEREBRAS_MODEL",
+            "qwen-3-235b-a22b-instruct-2507",
         )
 
-        print(f"[RAG] Gemini model: {self.model}")
+        print(f"[RAG] Cerebras model: {self.model}")
         print(f"[RAG] top_k: {self.top_k}")
 
     def retrieve(self, question: str):
@@ -65,10 +63,7 @@ class RAGPipeline:
 
         context = "\n\n".join(context_parts)
 
-        prompt = f"""
-{SYSTEM_PROMPT}
-
-Câu hỏi:
+        user_prompt = f"""Câu hỏi:
 {question}
 
 Ngữ cảnh:
@@ -83,20 +78,29 @@ Yêu cầu:
 
         generation_start = time.perf_counter()
 
-        response = self.client.models.generate_content(
+        response = self.client.chat.completions.create(
             model=self.model,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                temperature=0.2,
-                max_output_tokens=220,
-            ),
+            messages=[
+                {
+                    "role": "system",
+                    "content": SYSTEM_PROMPT,
+                },
+                {
+                    "role": "user",
+                    "content": user_prompt,
+                },
+            ],
+            temperature=0.2,
+            max_completion_tokens=220,
         )
 
         generation_end = time.perf_counter()
 
         answer_text = (
-            response.text.strip()
-            if response.text
+            response.choices[0].message.content.strip()
+            if response.choices
+            and response.choices[0].message
+            and response.choices[0].message.content
             else "Mình chưa tìm thấy nội dung này trong chương tài liệu hiện có."
         )
 
@@ -109,7 +113,7 @@ Yêu cầu:
         print(
             f"[RAG TIMING] "
             f"retrieve={retrieve_time:.2f}s | "
-            f"gemini={generation_time:.2f}s | "
+            f"cerebras={generation_time:.2f}s | "
             f"total={total_time:.2f}s"
         )
 

@@ -12,4 +12,5 @@ sentence-transformers>=5.0.0
 transformers>=4.51.0
 accelerate>=1.0.0
 
+cerebras_cloud_sdk
 google-genai
