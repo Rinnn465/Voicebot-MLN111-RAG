@@ -103,30 +103,17 @@ Hãy trả lời như đang nói chuyện trong một voicebot demo. Viết thà
             text={
                 "verbosity": "low",
             },
-<<<<<<< HEAD
-            max_output_tokens=220,
-            temperature=0.2,
-=======
->>>>>>> main
             store=False,
         )
 
         answer_text = (
             response.output_text.strip()
             if getattr(response, "output_text", None)
-<<<<<<< HEAD
-            else "Mình chưa tìm thấy nội dung này trong chương tài liệu hiện có."
-=======
             else "Mình chưa tạo được câu trả lời phù hợp lúc này."
->>>>>>> main
         )
 
         generation_end = time.perf_counter()
 
-<<<<<<< HEAD
-        if not answer_text:
-            answer_text = "Mình chưa tìm thấy nội dung này trong chương tài liệu hiện có."
-=======
         usage = getattr(response, "usage", None)
         if usage:
             input_tokens = getattr(usage, "input_tokens", None)
@@ -141,7 +128,6 @@ Hãy trả lời như đang nói chuyện trong một voicebot demo. Viết thà
 
         if not answer_text:
             answer_text = "Mình chưa tạo được câu trả lời phù hợp lúc này."
->>>>>>> main
 
         total_end = time.perf_counter()
 

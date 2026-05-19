@@ -12,7 +12,7 @@ const transcriptPartialBox = document.getElementById("transcriptPartial");
 const speakAnswerToggle = document.getElementById("speakAnswerToggle");
 const resultBox = document.getElementById("result");
 const answerBox = document.getElementById("answer");
-const answerAudio = document.getElementById("answerAudio");
+let answerAudio = document.getElementById("answerAudio");
 const suggestionButtons = document.querySelectorAll(".suggestion-btn");
 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
 
@@ -21,6 +21,13 @@ recordBtn.addEventListener("click", startRecording);
 stopBtn.addEventListener("click", stopRecording);
 clearBtn.addEventListener("click", clearForm);
 
+let isAsking = false;
+let isListening = false;
+const recognition = {
+  stop() {
+    isListening = false;
+  },
+};
 let activeStream = null;
 let liveSocket = null;
 let liveSocketReady = false;
@@ -31,6 +38,37 @@ let finalTranscriptSegments = [];
 let realtimeStopRequested = false;
 let stopFallbackTimer = null;
 let answerAudioUrl = null;
+
+function setStatus(message) {
+  statusBox.textContent = message;
+}
+
+function setBusy(isBusy) {
+  askBtn.disabled = isBusy;
+  clearBtn.disabled = isBusy;
+  suggestionButtons.forEach((button) => {
+    button.disabled = isBusy;
+  });
+}
+
+function escapeHtml(value) {
+  const div = document.createElement("div");
+  div.textContent = value;
+  return div.innerHTML;
+}
+
+function getAnswerAudio() {
+  if (answerAudio) {
+    return answerAudio;
+  }
+
+  answerAudio = document.createElement("audio");
+  answerAudio.id = "answerAudio";
+  answerAudio.controls = true;
+  answerAudio.classList.add("hidden");
+  resultBox.appendChild(answerAudio);
+  return answerAudio;
+}
 
 questionInput.addEventListener("keydown", (event) => {
   if (event.ctrlKey && event.key === "Enter") {
@@ -418,11 +456,12 @@ async function speakAnswer(text) {
   const audioBlob = await response.blob();
   resetAnswerAudio();
   answerAudioUrl = URL.createObjectURL(audioBlob);
-  answerAudio.src = answerAudioUrl;
-  answerAudio.classList.remove("hidden");
+  const audio = getAnswerAudio();
+  audio.src = answerAudioUrl;
+  audio.classList.remove("hidden");
 
   try {
-    await answerAudio.play();
+    await audio.play();
     statusBox.textContent = "Hoàn tất và đang phát câu trả lời.";
   } catch (error) {
     statusBox.textContent = "Hoàn tất. Nhấn play để nghe câu trả lời.";
@@ -430,10 +469,11 @@ async function speakAnswer(text) {
 }
 
 function resetAnswerAudio() {
-  answerAudio.pause();
-  answerAudio.removeAttribute("src");
-  answerAudio.load();
-  answerAudio.classList.add("hidden");
+  const audio = getAnswerAudio();
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
+  audio.classList.add("hidden");
 
   if (answerAudioUrl) {
     URL.revokeObjectURL(answerAudioUrl);
