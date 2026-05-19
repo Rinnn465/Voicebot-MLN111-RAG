@@ -3,8 +3,8 @@ import time
 from typing import Dict, List
 
 from dotenv import load_dotenv
-from cerebras.cloud.sdk import Cerebras
 from langchain_chroma import Chroma
+from openai import OpenAI
 
 from Qwen_embeddings import Qwen3Embedding4B
 
@@ -35,9 +35,9 @@ class RAGPipeline:
     def __init__(self, persist_dir: str = "chroma_db", top_k: int = 4):
         self.top_k = top_k
 
-        api_key = os.getenv("CEREBRAS_API_KEY")
+        api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
-            raise ValueError("Thiếu CEREBRAS_API_KEY trong file .env")
+            raise ValueError("Thiếu OPENAI_API_KEY trong file .env")
 
         self.embeddings = Qwen3Embedding4B()
 
@@ -46,14 +46,19 @@ class RAGPipeline:
             embedding_function=self.embeddings,
         )
 
-        self.client = Cerebras(api_key=api_key)
+        self.client = OpenAI(api_key=api_key)
 
         self.model = os.getenv(
-            "CEREBRAS_MODEL",
-            "qwen-3-235b-a22b-instruct-2507",
+            "OPENAI_MODEL",
+            "gpt-5.4-mini",
+        )
+        self.reasoning_effort = os.getenv(
+            "OPENAI_REASONING_EFFORT",
+            "low",
         )
 
-        print(f"[RAG] Cerebras model: {self.model}")
+        print(f"[RAG] OpenAI model: {self.model}")
+        print(f"[RAG] OpenAI reasoning effort: {self.reasoning_effort}")
         print(f"[RAG] top_k: {self.top_k}")
 
     def retrieve(self, question: str):
@@ -88,22 +93,8 @@ Hãy trả lời như đang nói chuyện trong một voicebot demo. Viết thà
 
         generation_start = time.perf_counter()
 
-        response = self.client.chat.completions.create(
+        response = self.client.responses.create(
             model=self.model,
-<<<<<<< Updated upstream
-            messages=[
-                {
-                    "role": "system",
-                    "content": SYSTEM_PROMPT,
-                },
-                {
-                    "role": "user",
-                    "content": user_prompt,
-                },
-            ],
-            temperature=0.2,
-            max_completion_tokens=220,
-=======
             instructions=SYSTEM_PROMPT,
             input=user_prompt,
             reasoning={
@@ -119,20 +110,10 @@ Hãy trả lời như đang nói chuyện trong một voicebot demo. Viết thà
             response.output_text.strip()
             if getattr(response, "output_text", None)
             else "Mình chưa tạo được câu trả lời phù hợp lúc này."
->>>>>>> Stashed changes
         )
 
         generation_end = time.perf_counter()
 
-<<<<<<< Updated upstream
-        answer_text = (
-            response.choices[0].message.content.strip()
-            if response.choices
-            and response.choices[0].message
-            and response.choices[0].message.content
-            else "Mình chưa tìm thấy nội dung này trong chương tài liệu hiện có."
-        )
-=======
         usage = getattr(response, "usage", None)
         if usage:
             input_tokens = getattr(usage, "input_tokens", None)
@@ -147,7 +128,6 @@ Hãy trả lời như đang nói chuyện trong một voicebot demo. Viết thà
 
         if not answer_text:
             answer_text = "Mình chưa tạo được câu trả lời phù hợp lúc này."
->>>>>>> Stashed changes
 
         total_end = time.perf_counter()
 
@@ -158,7 +138,7 @@ Hãy trả lời như đang nói chuyện trong một voicebot demo. Viết thà
         print(
             f"[RAG TIMING] "
             f"retrieve={retrieve_time:.2f}s | "
-            f"cerebras={generation_time:.2f}s | "
+            f"openai={generation_time:.2f}s | "
             f"total={total_time:.2f}s"
         )
 
