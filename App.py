@@ -12,7 +12,7 @@ from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from rag import RAGPipeline
+from RAG import RAGPipeline
 from services.eleven_tts import ElevenTTSError, synthesize_speech
 from services.valsea_rtt import create_realtime_connection, get_realtime_start_message
 from services.valsea_stt import ValseaSTTError, transcribe_audio

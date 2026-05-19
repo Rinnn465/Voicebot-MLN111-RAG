@@ -3,6 +3,9 @@ const askBtn = document.getElementById("askBtn");
 const recordBtn = document.getElementById("recordBtn");
 const stopBtn = document.getElementById("stopBtn");
 const clearBtn = document.getElementById("clearBtn");
+const micBtn = document.getElementById("micBtn");
+const micStatus = document.getElementById("micStatus");
+const waveform = document.getElementById("waveform");
 const statusBox = document.getElementById("status");
 const transcriptFinalBox = document.getElementById("transcriptFinal");
 const transcriptPartialBox = document.getElementById("transcriptPartial");
@@ -39,6 +42,7 @@ suggestionButtons.forEach((button) => {
   button.addEventListener("click", () => {
     questionInput.value = button.dataset.question || "";
     questionInput.focus();
+    setStatus("Đã đưa gợi ý vào ô hỏi.");
   });
 });
 
@@ -47,23 +51,24 @@ async function askQuestion(options = {}) {
   const shouldSpeakAnswer = options.shouldSpeakAnswer ?? speakAnswerToggle.checked;
 
   if (question.length < 2) {
-    statusBox.textContent = "Hãy nhập câu hỏi hợp lệ.";
+    setStatus("Hãy nhập hoặc đọc một câu hỏi hợp lệ.");
+    questionInput.focus();
     return;
   }
 
-  askBtn.disabled = true;
-  clearBtn.disabled = true;
-  suggestionButtons.forEach((button) => {
-    button.disabled = true;
-  });
+  if (isListening) {
+    recognition.stop();
+  }
 
-  statusBox.textContent = "Đang truy xuất nội dung liên quan...";
+  isAsking = true;
+  setBusy(true);
+  setStatus("Đang truy xuất nội dung liên quan...");
   resultBox.classList.add("hidden");
   answerBox.innerHTML = "";
   resetAnswerAudio();
 
   const statusTimer = setTimeout(() => {
-    statusBox.textContent = "Đang tổng hợp câu trả lời...";
+    setStatus("Đang tổng hợp câu trả lời...");
   }, 900);
 
   try {
@@ -81,9 +86,9 @@ async function askQuestion(options = {}) {
       throw new Error(data.detail || "Backend trả về lỗi.");
     }
 
-    answerBox.innerHTML = marked.parse(
-      data.answer || "Không có câu trả lời."
-    );
+    answerBox.innerHTML = window.marked
+      ? marked.parse(data.answer || "Không có câu trả lời.")
+      : escapeHtml(data.answer || "Không có câu trả lời.");
 
     resultBox.classList.remove("hidden");
     statusBox.textContent = "Hoàn tất.";
@@ -92,18 +97,19 @@ async function askQuestion(options = {}) {
       await speakAnswer(data.answer);
     }
   } catch (error) {
-    statusBox.textContent = `Có lỗi: ${error.message}`;
+    setStatus(`Có lỗi: ${error.message}`);
   } finally {
     clearTimeout(statusTimer);
-    askBtn.disabled = false;
-    clearBtn.disabled = false;
-    suggestionButtons.forEach((button) => {
-      button.disabled = false;
-    });
+    isAsking = false;
+    setBusy(false);
   }
 }
 
 function clearForm() {
+  if (isListening) {
+    recognition.stop();
+  }
+
   questionInput.value = "";
   statusBox.textContent = "";
   finalTranscriptSegments = [];

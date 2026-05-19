@@ -4,20 +4,506 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Trợ lý Triết học Mác–Lênin</title>
+  <title>Voicebot MLN111 - Chương 2</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Literata:opsz,wght@7..72,600;7..72,700&display=swap" rel="stylesheet" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
+    :root {
+      --ink: #0b1020;
+      --paper: #f7f1e7;
+      --paper-soft: #fffaf1;
+      --muted: #9ba6b8;
+      --line: rgba(255, 255, 255, 0.14);
+      --gold: #e6b45c;
+      --cyan: #58d5d8;
+      --rose: #ef7b78;
+      --green: #89d185;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(circle at 16% 10%, rgba(230, 180, 92, 0.2), transparent 28rem),
+        radial-gradient(circle at 84% 18%, rgba(88, 213, 216, 0.17), transparent 30rem),
+        linear-gradient(135deg, #070a14 0%, #111827 48%, #0a0f1e 100%);
+      color: #f8fafc;
+      font-family: "Be Vietnam Pro", sans-serif;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent 78%);
+    }
+
+    .app-shell {
+      width: min(1200px, calc(100% - 32px));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 28px 0;
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .study-panel,
+    .chat-panel {
+      position: relative;
+      border: 1px solid var(--line);
+      background: rgba(10, 15, 30, 0.7);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      backdrop-filter: blur(24px);
+    }
+
+    .study-panel {
+      padding: clamp(24px, 4vw, 46px);
+      border-radius: 8px 28px 8px 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 760px;
+    }
+
+    .study-panel::after {
+      content: "";
+      position: absolute;
+      right: -110px;
+      bottom: -120px;
+      width: 360px;
+      height: 360px;
+      border: 1px solid rgba(230, 180, 92, 0.24);
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 36px rgba(230, 180, 92, 0.04);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      border: 1px solid rgba(230, 180, 92, 0.34);
+      background: rgba(230, 180, 92, 0.1);
+      color: #ffe4ae;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .pulse-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 0 7px rgba(137, 209, 133, 0.14);
+    }
+
+    .hero-title {
+      margin: 28px 0 0;
+      color: var(--paper);
+      font-family: "Literata", serif;
+      font-size: clamp(44px, 7vw, 78px);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    .hero-title span {
+      display: block;
+      color: var(--gold);
+    }
+
+    .hero-copy {
+      max-width: 610px;
+      margin: 24px 0 0;
+      color: #c9d3e3;
+      font-size: 17px;
+      line-height: 1.85;
+    }
+
+    .chapter-strip {
+      margin-top: 34px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .chapter-strip div {
+      padding: 18px;
+      min-height: 116px;
+      border-right: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .chapter-strip div:last-child {
+      border-right: 0;
+    }
+
+    .chapter-strip strong {
+      display: block;
+      color: var(--paper);
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .chapter-strip span {
+      display: block;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .suggestions {
+      position: relative;
+      z-index: 1;
+      margin-top: 34px;
+    }
+
+    .section-label {
+      margin: 0 0 14px;
+      color: #8390a6;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .suggestion-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .suggestion-btn {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      background: rgba(255, 255, 255, 0.055);
+      color: #edf2f7;
+      padding: 14px 16px;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 14px;
+      line-height: 1.45;
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .suggestion-btn:hover:not(:disabled) {
+      transform: translateX(5px);
+      border-color: rgba(230, 180, 92, 0.55);
+      background: rgba(230, 180, 92, 0.1);
+    }
+
+    .chat-panel {
+      border-radius: 28px 8px 8px 8px;
+      padding: clamp(18px, 3vw, 30px);
+      display: flex;
+      flex-direction: column;
+      min-height: 760px;
+    }
+
+    .panel-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      padding-bottom: 22px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.11);
+    }
+
+    .panel-top h2 {
+      margin: 0;
+      color: var(--paper);
+      font-family: "Literata", serif;
+      font-size: clamp(27px, 4vw, 40px);
+      letter-spacing: 0;
+    }
+
+    .panel-top p {
+      margin: 10px 0 0;
+      color: #aeb9ca;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .mode-badge {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(88, 213, 216, 0.35);
+      color: #bffcff;
+      background: rgba(88, 213, 216, 0.08);
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .input-zone {
+      margin-top: 22px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .input-label-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      color: #d8e0ed;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .mic-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #aeb9ca;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .mic-status::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #64748b;
+    }
+
+    .mic-status.is-listening::before {
+      background: var(--rose);
+      box-shadow: 0 0 0 8px rgba(239, 123, 120, 0.13);
+    }
+
+    .composer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 190px;
+      resize: vertical;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      background: rgba(3, 7, 18, 0.62);
+      color: #fffaf1;
+      padding: 18px;
+      font: inherit;
+      font-size: 16px;
+      line-height: 1.75;
+      outline: none;
+      transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+    }
+
+    textarea::placeholder {
+      color: #68758a;
+    }
+
+    textarea:focus {
+      border-color: rgba(230, 180, 92, 0.62);
+      box-shadow: 0 0 0 4px rgba(230, 180, 92, 0.12);
+      background: rgba(3, 7, 18, 0.76);
+    }
+
+    .voice-rail {
+      width: 74px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .icon-btn,
+    .primary-btn,
+    .ghost-btn {
+      border: 0;
+      font: inherit;
+      cursor: pointer;
+      transition: transform 180ms ease, background 180ms ease, border-color 180ms ease, opacity 180ms ease;
+    }
+
+    .icon-btn {
+      width: 74px;
+      min-height: 74px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.06);
+      color: #e5edf8;
+      display: grid;
+      place-items: center;
+    }
+
+    .icon-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .icon-btn.is-listening {
+      color: white;
+      border-color: rgba(239, 123, 120, 0.72);
+      background: rgba(239, 123, 120, 0.17);
+      animation: breathe 1.15s ease-in-out infinite;
+    }
+
+    .waveform {
+      flex: 1;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.045);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      min-height: 104px;
+      padding: 10px;
+    }
+
+    .waveform span {
+      width: 5px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(88, 213, 216, 0.75);
+      transform-origin: center;
+    }
+
+    .waveform.is-listening span {
+      animation: voice-bar 760ms ease-in-out infinite;
+    }
+
+    .waveform span:nth-child(2) { height: 28px; animation-delay: 80ms; }
+    .waveform span:nth-child(3) { height: 44px; animation-delay: 160ms; }
+    .waveform span:nth-child(4) { height: 31px; animation-delay: 240ms; }
+    .waveform span:nth-child(5) { height: 22px; animation-delay: 320ms; }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .primary-btn,
+    .ghost-btn {
+      min-height: 54px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 0 18px;
+      font-weight: 800;
+    }
+
+    .primary-btn {
+      color: #101624;
+      background: var(--gold);
+      box-shadow: 0 12px 34px rgba(230, 180, 92, 0.24);
+    }
+
+    .primary-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      background: #f1c979;
+    }
+
+    .ghost-btn {
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #d7dfeb;
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    .ghost-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.58;
+    }
+
+    .status-line {
+      min-height: 28px;
+      color: #aeb9ca;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .result {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 12px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.11);
+    }
+
+    .result.hidden {
+      display: none;
+    }
+
+    .answer-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .answer-heading h3 {
+      margin: 0;
+      color: var(--paper);
+      font-family: "Literata", serif;
+      font-size: 25px;
+      letter-spacing: 0;
+    }
+
+    .answer-markdown {
+      max-height: 330px;
+      overflow: auto;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.026)),
+        rgba(4, 9, 20, 0.64);
+      color: #dfe7f2;
+      padding: 20px;
+      font-size: 15px;
+      line-height: 1.78;
+    }
+
     .answer-markdown p {
-      margin: 0.75rem 0;
+      margin: 0.8rem 0;
     }
 
     .answer-markdown ol,
     .answer-markdown ul {
-      margin: 0.75rem 0;
-      padding-left: 1.5rem;
+      margin: 0.8rem 0;
+      padding-left: 1.35rem;
     }
 
     .answer-markdown ol {
@@ -29,106 +515,215 @@
     }
 
     .answer-markdown li {
-      margin: 0.4rem 0;
+      margin: 0.42rem 0;
     }
 
     .answer-markdown strong {
-      color: #ffffff;
-      font-weight: 700;
+      color: #fff6df;
+      font-weight: 800;
     }
 
     .answer-markdown h1,
     .answer-markdown h2,
     .answer-markdown h3 {
-      margin-top: 1rem;
-      margin-bottom: 0.6rem;
-      color: #ffffff;
+      margin: 1rem 0 0.55rem;
+      color: #fff6df;
+      font-family: "Literata", serif;
       font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .answer-markdown code {
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 2px 6px;
+      color: #bffcff;
+    }
+
+    @keyframes breathe {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 123, 120, 0.25); }
+      50% { box-shadow: 0 0 0 10px rgba(239, 123, 120, 0); }
+    }
+
+    @keyframes voice-bar {
+      0%, 100% { transform: scaleY(0.45); opacity: 0.55; }
+      50% { transform: scaleY(1.08); opacity: 1; }
+    }
+
+    @media (max-width: 980px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+        padding: 18px 0;
+      }
+
+      .study-panel,
+      .chat-panel {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app-shell {
+        width: min(100% - 20px, 1200px);
+      }
+
+      .study-panel,
+      .chat-panel {
+        border-radius: 8px;
+        padding: 18px;
+      }
+
+      .chapter-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .chapter-strip div {
+        min-height: auto;
+        border-right: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      }
+
+      .chapter-strip div:last-child {
+        border-bottom: 0;
+      }
+
+      .panel-top {
+        flex-direction: column;
+      }
+
+      .composer {
+        grid-template-columns: 1fr;
+      }
+
+      .voice-rail {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 74px 1fr;
+      }
+
+      .action-row {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 
-<body class="min-h-screen bg-slate-950 text-slate-100">
-  <main class="mx-auto flex min-h-screen w-full max-w-6xl items-center px-4 py-10 sm:px-6 lg:px-8">
-    <div class="grid w-full gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-
-      <!-- Left hero -->
-      <section class="flex flex-col justify-center">
-        <div class="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-indigo-400/20 bg-indigo-400/10 px-4 py-2 text-sm font-medium text-indigo-200">
-          <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-          Trợ lý học tập MLN111
+<body>
+  <main class="app-shell">
+    <section class="study-panel" aria-labelledby="app-title">
+      <div>
+        <div class="eyebrow">
+          <span class="pulse-dot"></span>
+          MLN111 - Voicebot chương 2
         </div>
 
-        <h1 class="max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+        <h1 id="app-title" class="hero-title">
           Hỏi đáp
-          <span class="bg-gradient-to-r from-indigo-300 via-sky-300 to-cyan-200 bg-clip-text text-transparent">
-            Triết học Mác–Lênin
-          </span>
+          <span>Triết học Mác-Lênin</span>
         </h1>
 
-        <p class="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-          Hệ thống hỗ trợ giải đáp các câu hỏi thuộc nội dung Chương 2,
-          giúp người học ôn tập khái niệm và nắm ý chính một cách dễ hiểu.
+        <p class="hero-copy">
+          Không gian ôn tập bằng giọng nói cho các nội dung về vật chất, ý thức
+          và mối quan hệ biện chứng trong Chương 2. Hỏi tự nhiên, nhận câu trả
+          lời có cấu trúc từ dữ liệu học phần.
         </p>
 
-        <div class="mt-8 rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
-          <p class="text-sm font-medium uppercase tracking-[0.18em] text-slate-400">
-            Gợi ý câu hỏi
-          </p>
-
-          <div class="mt-4 flex flex-wrap gap-3">
-            <button
-              type="button"
-              class="suggestion-btn rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
-              data-question="Vật chất là gì theo triết học Mác-Lênin?"
-            >
-              Vật chất là gì?
-            </button>
-
-            <button
-              type="button"
-              class="suggestion-btn rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
-              data-question="Ý thức có nguồn gốc như thế nào?"
-            >
-              Nguồn gốc của ý thức?
-            </button>
-
-            <button
-              type="button"
-              class="suggestion-btn rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
-              data-question="Mối quan hệ giữa vật chất và ý thức là gì?"
-            >
-              Vật chất và ý thức?
-            </button>
+        <div class="chapter-strip" aria-label="Nội dung trọng tâm">
+          <div>
+            <strong>01</strong>
+            <span>Phạm trù vật chất và ý nghĩa phương pháp luận.</span>
+          </div>
+          <div>
+            <strong>02</strong>
+            <span>Nguồn gốc, bản chất và kết cấu của ý thức.</span>
+          </div>
+          <div>
+            <strong>03</strong>
+            <span>Quan hệ giữa vật chất và ý thức trong nhận thức.</span>
           </div>
         </div>
-      </section>
+      </div>
 
-      <!-- Chat card -->
-      <section class="rounded-3xl border border-white/10 bg-white/[0.08] p-5 shadow-2xl shadow-indigo-950/40 backdrop-blur-xl sm:p-6">
-        <div class="mb-6">
-          <h2 class="text-2xl font-semibold text-white">Đặt câu hỏi</h2>
-          <p class="mt-2 text-sm leading-6 text-slate-300">
-            Nhập câu hỏi về nội dung Chương 2 để hệ thống hỗ trợ giải đáp.
+      <div class="suggestions">
+        <p class="section-label">Gợi ý hỏi nhanh</p>
+        <div class="suggestion-grid">
+          <button
+            type="button"
+            class="suggestion-btn"
+            data-question="Vật chất là gì theo triết học Mác-Lênin?"
+          >
+            Vật chất là gì theo triết học Mác-Lênin?
+          </button>
+          <button
+            type="button"
+            class="suggestion-btn"
+            data-question="Ý thức có nguồn gốc tự nhiên và nguồn gốc xã hội như thế nào?"
+          >
+            Ý thức có nguồn gốc tự nhiên và xã hội như thế nào?
+          </button>
+          <button
+            type="button"
+            class="suggestion-btn"
+            data-question="Phân tích mối quan hệ giữa vật chất và ý thức."
+          >
+            Phân tích mối quan hệ giữa vật chất và ý thức.
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="chat-panel" aria-labelledby="chat-title">
+      <div class="panel-top">
+        <div>
+          <h2 id="chat-title">Bàn hỏi đáp</h2>
+          <p>
+            Nhập câu hỏi hoặc dùng mic. Voicebot nhận tiếng Việt, đưa nội dung vào ô hỏi,
+            rồi gửi tới hệ thống RAG của học phần.
           </p>
         </div>
+        <div class="mode-badge">
+          <i data-lucide="sparkles" aria-hidden="true"></i>
+          RAG ready
+        </div>
+      </div>
 
-        <label for="question" class="mb-3 block text-sm font-medium text-slate-200">
-          Câu hỏi của bạn
-        </label>
+      <div class="input-zone">
+        <div class="input-label-row">
+          <label for="question">Câu hỏi của bạn</label>
+          <span id="micStatus" class="mic-status">Mic sẵn sàng</span>
+        </div>
 
-        <textarea
-          id="question"
-          rows="6"
-          placeholder="Ví dụ: Mối quan hệ giữa vật chất và ý thức là gì?"
-          class="w-full resize-none rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-4 text-base leading-7 text-white outline-none transition placeholder:text-slate-500 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-400/15"
-        ></textarea>
+        <div class="composer">
+          <textarea
+            id="question"
+            rows="7"
+            placeholder="Ví dụ: Vì sao vật chất quyết định ý thức nhưng ý thức vẫn có tính độc lập tương đối?"
+          ></textarea>
 
-        <div class="mt-4 flex flex-col gap-3 sm:flex-row">
-          <button
-            id="askBtn"
-            class="inline-flex flex-1 items-center justify-center rounded-2xl bg-indigo-500 px-5 py-3.5 font-semibold text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <div class="voice-rail" aria-label="Điều khiển giọng nói">
+            <button
+              id="micBtn"
+              type="button"
+              class="icon-btn"
+              title="Bật hoặc tắt mic"
+              aria-label="Bật mic để nhập câu hỏi"
+              aria-pressed="false"
+            >
+              <i data-lucide="mic" aria-hidden="true"></i>
+            </button>
+            <div id="waveform" class="waveform" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button id="askBtn" type="button" class="primary-btn">
+            <i data-lucide="send-horizontal" aria-hidden="true"></i>
             Gửi câu hỏi
           </button>
 
@@ -198,15 +793,9 @@
             id="answer"
             class="answer-markdown text-sm leading-7 text-slate-100 sm:text-base"
           ></div>
-
-          <audio
-            id="answerAudio"
-            class="mt-4 hidden w-full"
-            controls
-          ></audio>
         </section>
       </section>
-    </div>
+    </section>
   </main>
 
   <script src="/static/app.js"></script>
