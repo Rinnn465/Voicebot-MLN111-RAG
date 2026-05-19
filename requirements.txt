@@ -2,6 +2,9 @@ fastapi==0.115.5
 uvicorn[standard]==0.32.0
 python-dotenv==1.0.1
 pydantic==2.10.1
+httpx==0.28.1
+python-multipart==0.0.20
+websockets==15.0.1
 
 langchain==0.3.7
 langchain-community==0.3.7
@@ -12,5 +15,5 @@ sentence-transformers>=5.0.0
 transformers>=4.51.0
 accelerate>=1.0.0
 
-cerebras_cloud_sdk
 google-genai
+openai>=1.99.1
