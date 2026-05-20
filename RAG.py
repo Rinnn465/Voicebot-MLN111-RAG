@@ -11,7 +11,7 @@ from Qwen_embeddings import Qwen3Embedding4B
 from prompt_contract import (
     SYSTEM_PROMPT,
     build_user_prompt,
-    ensure_first_response_intro,
+    apply_intro_policy,
     sanitize_tts_text,
 )
 
@@ -21,7 +21,6 @@ load_dotenv()
 class RAGPipeline:
     def __init__(self, persist_dir: str = "chroma_db", top_k: int = 4):
         self.top_k = top_k
-        self._has_introduced = False
 
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
@@ -111,10 +110,7 @@ class RAGPipeline:
         if not answer_text:
             answer_text = "Mình chưa tạo được câu trả lời phù hợp lúc này."
 
-        answer_text, self._has_introduced = ensure_first_response_intro(
-            answer_text,
-            self._has_introduced,
-        )
+        answer_text = apply_intro_policy(answer_text, question)
 
         total_end = time.perf_counter()
 
