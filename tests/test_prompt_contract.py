@@ -49,6 +49,16 @@ class PromptContractTest(unittest.TestCase):
         self.assertTrue(is_intro_request("Bạn giới thiệu vai trò của mình đi"))
         self.assertFalse(is_intro_request("Trình bày nguyên lý mối liên hệ phổ biến"))
 
+
+    def test_system_prompt_answers_out_of_chapter_with_clear_boundary(self):
+        self.assertIn("nằm ngoài nội dung chương", SYSTEM_PROMPT.lower())
+        self.assertIn("trả lời khái quát", SYSTEM_PROMPT.lower())
+        public_text = SYSTEM_PROMPT.lower()
+        self.assertNotIn("rag", public_text)
+        self.assertNotIn("elevenlabs", public_text)
+        self.assertNotIn("markdown", public_text)
+        self.assertNotIn("context", public_text)
+
     def test_sanitize_tts_text_removes_common_markdown(self):
         raw = "**Tiêu đề**\n- Ý một\n1. Ý hai"
 
@@ -71,4 +81,5 @@ class PromptContractTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
 
