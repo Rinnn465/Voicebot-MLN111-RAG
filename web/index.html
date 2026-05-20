@@ -82,9 +82,9 @@
       left: 50%;
       z-index: 30;
       display: inline-grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 4px;
-      width: min(760px, calc(100vw - 28px));
+      width: min(920px, calc(100vw - 28px));
       padding: 5px;
       border: 1px solid rgba(21, 21, 21, 0.16);
       border-radius: 18px;
@@ -666,9 +666,8 @@
     .top-status {
       position: fixed;
       top: 78px;
-      left: 50%;
+      right: 18px;
       z-index: 5;
-      transform: translateX(-50%);
       display: inline-flex;
       align-items: center;
       gap: 10px;
@@ -884,73 +883,113 @@
     }
 
 
-    .usage-compact {
+    .usage-shell {
+      width: min(1280px, 100%);
+      margin: 0 auto;
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      padding: 18px;
+      gap: 18px;
     }
 
-    .usage-card {
-      min-height: 138px;
+    .usage-hero {
       border: 1px solid var(--line);
       border-radius: 8px;
+      padding: clamp(20px, 3vw, 30px);
+      background: rgba(255, 255, 250, 0.86);
+      box-shadow: 0 24px 70px rgba(21, 21, 21, 0.13);
+    }
+
+    .usage-hero h1 {
+      max-width: none;
+      margin-bottom: 12px;
+      font-size: clamp(38px, 5vw, 68px);
+    }
+
+    .usage-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 18px 48px rgba(21, 21, 21, 0.1);
+    }
+
+    .usage-table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+    }
+
+    .usage-table caption {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      font-family: "Literata", Georgia, serif;
+      font-size: clamp(22px, 2.8vw, 34px);
+      font-weight: 700;
+      line-height: 1.1;
+      text-align: left;
+    }
+
+    .usage-table th,
+    .usage-table td {
+      border-bottom: 1px solid var(--line);
+      padding: 14px 16px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .usage-table th {
+      color: white;
+      background: #151515;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .usage-table td {
+      color: #34413b;
+      font-size: 13px;
+      line-height: 1.58;
+      background: rgba(255, 255, 255, 0.56);
+    }
+
+    .usage-table tbody tr:nth-child(even) td {
+      background: rgba(232, 239, 231, 0.48);
+    }
+
+    .usage-tool {
+      display: block;
+      color: var(--teal);
+      font-weight: 900;
+    }
+
+    .usage-summary-grid {
       display: grid;
-      align-content: start;
-      gap: 8px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .usage-note-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
       padding: 16px;
       background: rgba(255, 255, 255, 0.62);
+      box-shadow: 0 14px 34px rgba(21, 21, 21, 0.08);
     }
 
-    .usage-card strong {
-      color: var(--teal);
-      font-size: 15px;
+    .usage-note-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--red);
     }
 
-    .usage-card span,
-    .usage-note,
-    .usage-list li {
+    .usage-note-card p {
+      margin: 0;
       color: #34413b;
       font-size: 13px;
       line-height: 1.58;
     }
 
-    .usage-flow {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 10px;
-      padding: 18px;
-    }
-
-    .usage-step {
-      border: 1px solid rgba(21, 21, 21, 0.16);
-      border-radius: 8px;
-      padding: 14px;
-      background: #fffdf5;
-      font-size: 13px;
-      font-weight: 800;
-      line-height: 1.45;
-      text-align: center;
-    }
-
-    .usage-columns {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      padding: 18px;
-    }
-
-    .usage-list {
-      margin: 0;
-      padding: 18px 22px 18px 38px;
-    }
-
-    .usage-list li + li {
-      margin-top: 8px;
-    }
-
     .integrity-banner {
-      margin: 18px;
       border-left: 5px solid var(--green);
       border-radius: 8px;
       padding: 16px 18px;
@@ -986,13 +1025,11 @@
       .quiz-options,
       .node-grid,
       .step-track,
-      .usage-compact,
-      .usage-flow,
-      .usage-columns {
+      .usage-summary-grid {
         grid-template-columns: 1fr;
       }
       .app-shell { min-height: 100svh; padding: 74px 14px 230px; }
-      .top-status { top: 66px; }
+      .top-status { top: 66px; right: 14px; }
       .model-stage { width: 100%; height: 62vh; }
       .widget-main { grid-template-columns: 1fr; }
       .mic-button { width: 100%; height: 56px; border-radius: 18px; }
@@ -1005,15 +1042,19 @@
   <nav class="tab-dock" aria-label="Chọn màn hình">
     <button class="tab-button is-active" type="button" data-tab-target="lesson" aria-controls="lessonTab">
       <i data-lucide="presentation" aria-hidden="true"></i>
-      <span>Tab 1 - Nội dung</span>
+      <span>Nội dung</span>
     </button>
     <button class="tab-button" type="button" data-tab-target="avatar" aria-controls="avatarTab">
       <i data-lucide="bot" aria-hidden="true"></i>
-      <span>Tab 2 - VoiceBot</span>
+      <span>VoiceBot</span>
+    </button>
+    <button class="tab-button" type="button" data-tab-target="quiz" aria-controls="quizTab">
+      <i data-lucide="circle-help" aria-hidden="true"></i>
+      <span>Quiz</span>
     </button>
     <button class="tab-button" type="button" data-tab-target="usage" aria-controls="usageTab">
       <i data-lucide="shield-check" aria-hidden="true"></i>
-      <span>Tab 3 - AI Usage</span>
+      <span>AI Usage</span>
     </button>
   </nav>
 
@@ -1022,10 +1063,7 @@
       <aside class="lesson-intro">
         <div>
           <p class="eyebrow">MLN111 - Chương 2</p>
-          <h1 id="lessonTitle">Hai nguyên lý biện chứng</h1>
-          <p class="lead">
-            Nội dung rút từ phần “Hai nguyên lý của phép biện chứng duy vật”: nguyên lý về mối liên hệ phổ biến và nguyên lý về sự phát triển.
-          </p>
+          <h1 id="lessonTitle">Hai nguyên lý của phép biện chứng duy vật</h1>
         </div>
       </aside>
 
@@ -1096,39 +1134,8 @@
 
         <article class="module">
           <header class="module-header">
-            <h2 class="module-title">Kiểm tra quan điểm toàn diện</h2>
-            <span class="module-index">03</span>
-          </header>
-          <div class="scenario-lab">
-            <div class="check-panel">
-              <label class="check-card">
-                <input type="checkbox" class="method-check" data-score="25" checked />
-                <span><strong>Xem nhiều mặt của đối tượng</strong>Không chỉ nhìn kết quả cuối cùng, mà xét điều kiện, bộ phận, thuộc tính và môi trường.</span>
-              </label>
-              <label class="check-card">
-                <input type="checkbox" class="method-check" data-score="25" checked />
-                <span><strong>Tìm mối liên hệ bản chất</strong>Phân biệt liên hệ chủ yếu với liên hệ phụ để tránh dàn trải.</span>
-              </label>
-              <label class="check-card">
-                <input type="checkbox" class="method-check" data-score="25" />
-                <span><strong>Xét không gian, thời gian cụ thể</strong>Đặt sự vật trong quá khứ, hiện tại và khuynh hướng tương lai.</span>
-              </label>
-              <label class="check-card">
-                <input type="checkbox" class="method-check" data-score="25" />
-                <span><strong>Tránh phiến diện và chiết trung</strong>Không tuyệt đối hóa một mặt, cũng không lắp ghép vô nguyên tắc.</span>
-              </label>
-            </div>
-            <div class="score-panel">
-              <div class="score-number"><span id="methodScore">50</span>%</div>
-              <p id="methodMessage">Bạn đã có nền tảng, nhưng bài thuyết trình còn thiếu bối cảnh cụ thể và cảnh báo sai lầm phương pháp.</p>
-            </div>
-          </div>
-        </article>
-
-        <article class="module">
-          <header class="module-header">
             <h2 class="module-title">Mô phỏng sự phát triển</h2>
-            <span class="module-index">04</span>
+            <span class="module-index">03</span>
           </header>
           <div class="development-board">
             <div class="step-track">
@@ -1156,131 +1163,137 @@
           </div>
         </article>
 
-        <article class="module">
-          <header class="module-header">
-            <h2 class="module-title">Quiz tương tác cho lớp</h2>
-            <span class="module-index">05</span>
-          </header>
-          <div class="quiz-arena" aria-label="Quiz hai nguyên lý">
-            <div class="quiz-topline">
-              <span>Hỏi lớp - bấm đáp án để chốt</span>
-              <span id="quizCounter" class="quiz-counter">01 / 10</span>
-            </div>
-            <p id="quizQuestion" class="quiz-question">Đang tải câu hỏi...</p>
-            <div id="quizOptions" class="quiz-options" role="group" aria-label="Các đáp án"></div>
-            <p id="quizFeedback" class="quiz-feedback" aria-live="polite">Mời lớp chọn đáp án. Sau đó bấm “Giải thích” nếu cần chốt ý.</p>
-            <div class="quiz-actions">
-              <div class="quiz-action-group">
-                <button id="quizPrev" class="quiz-control" type="button">
-                  <i data-lucide="arrow-left" aria-hidden="true"></i>
-                  Trước
-                </button>
-                <button id="quizExplain" class="quiz-control" type="button">
-                  <i data-lucide="lightbulb" aria-hidden="true"></i>
-                  Giải thích
-                </button>
-                <button id="quizNext" class="quiz-control primary" type="button">
-                  Tiếp
-                  <i data-lucide="arrow-right" aria-hidden="true"></i>
-                </button>
-              </div>
-              <span id="quizScore" class="quiz-score">Điểm lớp: 0/0</span>
-            </div>
-          </div>
-        </article>
       </section>
     </div>
   </main>
 
 
-  <main id="usageTab" class="tab-panel lesson-panel" hidden aria-labelledby="usageTitle">
-    <div class="lesson-grid">
-      <aside class="lesson-intro">
-        <div>
-          <p class="eyebrow">Minh bạch AI</p>
-          <h1 id="usageTitle">AI Usage</h1>
-          <p class="lead">
-            AI được dùng như công cụ hỗ trợ: lập trình VoiceBot, tóm tắt tài liệu, truy xuất giáo trình và tạo trải nghiệm hỏi đáp. Nhóm vẫn kiểm chứng, chỉnh sửa và chịu trách nhiệm nội dung cuối cùng.
-          </p>
+
+  <main id="quizTab" class="tab-panel lesson-panel" hidden aria-labelledby="quizTitle">
+    <div class="usage-shell">
+      <section class="usage-hero">
+        <p class="eyebrow">Tương tác lớp học</p>
+        <h1 id="quizTitle">Quiz</h1>
+        <p class="lead">
+          Phần hỏi nhanh để lớp cùng kiểm tra hai nguyên lý của phép biện chứng duy vật trước khi chuyển sang VoiceBot hoặc tổng kết.
+        </p>
+      </section>
+
+      <article class="module">
+        <header class="module-header">
+          <h2 class="module-title">Quiz tương tác cho lớp</h2>
+          <span class="module-index">Q</span>
+        </header>
+        <div class="quiz-arena" aria-label="Quiz hai nguyên lý">
+          <div class="quiz-topline">
+            <span>Hỏi lớp - bấm đáp án để chốt</span>
+            <span id="quizCounter" class="quiz-counter">01 / 10</span>
+          </div>
+          <p id="quizQuestion" class="quiz-question">Đang tải câu hỏi...</p>
+          <div id="quizOptions" class="quiz-options" role="group" aria-label="Các đáp án"></div>
+          <p id="quizFeedback" class="quiz-feedback" aria-live="polite">Mời lớp chọn đáp án. Sau đó bấm “Giải thích” nếu cần chốt ý.</p>
+          <div class="quiz-actions">
+            <div class="quiz-action-group">
+              <button id="quizPrev" class="quiz-control" type="button">
+                <i data-lucide="arrow-left" aria-hidden="true"></i>
+                Trước
+              </button>
+              <button id="quizExplain" class="quiz-control" type="button">
+                <i data-lucide="lightbulb" aria-hidden="true"></i>
+                Giải thích
+              </button>
+              <button id="quizNext" class="quiz-control primary" type="button">
+                Tiếp
+                <i data-lucide="arrow-right" aria-hidden="true"></i>
+              </button>
+            </div>
+            <span id="quizScore" class="quiz-score">Điểm lớp: 0/0</span>
+          </div>
         </div>
-      </aside>
+      </article>
+    </div>
+  </main>
 
-      <section class="lesson-flow" aria-label="Tổng hợp sử dụng AI">
-        <article class="module">
-          <header class="module-header">
-            <h2 class="module-title">Công cụ đã dùng</h2>
-            <span class="module-index">01</span>
-          </header>
-          <div class="usage-compact">
-            <div class="usage-card">
-              <strong>ChatGPT / Codex</strong>
-              <span>Hỗ trợ code web, backend, prompt và kịch bản test podcast. Nhóm chạy thử, sửa lỗi và biên soạn lại.</span>
-            </div>
-            <div class="usage-card">
-              <strong>NotebookLM</strong>
-              <span>Tổng hợp, gói gọn tài liệu học tập để định hướng slide/web. Nhóm đối chiếu lại với giáo trình LLCT/MLN111.</span>
-            </div>
-            <div class="usage-card">
-              <strong>RAG VoiceBot</strong>
-              <span>Qwen/Qwen3-Embedding-4B + Chroma truy xuất tài liệu; OpenAI API sinh câu trả lời; Valsea/ElevenLabs hỗ trợ giọng nói.</span>
-            </div>
-          </div>
+  <main id="usageTab" class="tab-panel lesson-panel" hidden aria-labelledby="usageTitle">
+    <div class="usage-shell">
+      <section class="usage-hero">
+        <p class="eyebrow">Minh bạch AI</p>
+        <h1 id="usageTitle">AI Usage</h1>
+        <p class="lead">
+          Nhóm dùng AI như công cụ hỗ trợ kỹ thuật, tóm tắt, truy xuất và trình bày sáng tạo. Mọi nội dung cuối cùng được nhóm chọn lọc, kiểm chứng và chịu trách nhiệm.
+        </p>
+      </section>
+
+      <div class="usage-table-wrap">
+        <table class="usage-table">
+          <caption>Bảng tổng hợp sử dụng AI</caption>
+          <thead>
+            <tr>
+              <th scope="col">Công cụ</th>
+              <th scope="col">Mục đích</th>
+              <th scope="col">Prompt / yêu cầu chính</th>
+              <th scope="col">Kết quả AI</th>
+              <th scope="col">Phần nhóm chỉnh sửa</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="usage-tool">ChatGPT / Codex</span></td>
+              <td>Hỗ trợ lập trình VoiceBot RAG, backend/frontend và UI web có mic.</td>
+              <td>Thiết kế web voicebot, chỉnh UI học thuật, hỗ trợ API hỏi đáp và prompt.</td>
+              <td>Gợi ý/chỉnh code giao diện, API, kết nối RAG, STT/TTS và kịch bản test.</td>
+              <td>Nhóm kiểm tra, chạy thử, sửa lỗi, chỉnh prompt và luồng demo.</td>
+            </tr>
+            <tr>
+              <td><span class="usage-tool">NotebookLM</span></td>
+              <td>Tổng hợp và gói gọn thông tin từ tài liệu học tập.</td>
+              <td>Tóm tắt nội dung liên quan đến phép biện chứng duy vật.</td>
+              <td>Bản tóm tắt ý chính để định hướng nội dung web và VoiceBot.</td>
+              <td>Nhóm đối chiếu lại với giáo trình LLCT/MLN111, không dùng nguyên văn nếu chưa kiểm chứng.</td>
+            </tr>
+            <tr>
+              <td><span class="usage-tool">Qwen/Qwen3-Embedding-4B + Chroma</span></td>
+              <td>Tạo embedding và truy xuất đoạn giáo trình liên quan.</td>
+              <td>Tìm context phù hợp với câu hỏi sinh viên về Triết học Mác - Lênin.</td>
+              <td>Các đoạn tài liệu được đưa vào hệ thống RAG làm ngữ cảnh trả lời.</td>
+              <td>Nhóm chuẩn bị dữ liệu, kiểm tra đoạn truy xuất và đối chiếu nguồn chính thống.</td>
+            </tr>
+            <tr>
+              <td><span class="usage-tool">OpenAI API</span></td>
+              <td>Sinh câu trả lời cuối cùng cho VoiceBot dựa trên context RAG.</td>
+              <td>Trả lời như khách mời VoiceBot, bám giáo trình, văn phong podcast.</td>
+              <td>Câu trả lời ngắn gọn, tự nhiên, phù hợp đọc bằng giọng nói.</td>
+              <td>Nhóm thiết kế system prompt: không bịa, không thay nhóm thuyết trình, trả lời thận trọng khi thiếu dữ liệu.</td>
+            </tr>
+            <tr>
+              <td><span class="usage-tool">Valsea / ElevenLabs</span></td>
+              <td>Hỗ trợ Speech-to-Text và Text-to-Speech cho demo VoiceBot.</td>
+              <td>Nhận diện tiếng Việt và chuyển câu trả lời thành giọng nói.</td>
+              <td>VoiceBot có thể nghe và nói trong phần demo.</td>
+              <td>Nhóm kiểm thử âm thanh, kiểm soát transcript và nội dung phát ra.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section class="usage-summary-grid" aria-label="Cam kết sử dụng AI">
+        <article class="usage-note-card">
+          <strong>Minh bạch</strong>
+          <p>Có nêu rõ công cụ, mục đích, prompt/yêu cầu, kết quả AI và phần nhóm chỉnh sửa.</p>
         </article>
-
-        <article class="module">
-          <header class="module-header">
-            <h2 class="module-title">Luồng tạo câu trả lời</h2>
-            <span class="module-index">02</span>
-          </header>
-          <div class="usage-flow" aria-label="Quy trình RAG">
-            <div class="usage-step">Giáo trình MLN111</div>
-            <div class="usage-step">Qwen embedding</div>
-            <div class="usage-step">Chroma / RAG context</div>
-            <div class="usage-step">OpenAI API trả lời</div>
-            <div class="usage-step">Nhóm kiểm chứng</div>
-          </div>
-          <p class="map-result">VoiceBot chỉ đóng vai trò khách mời hỗ trợ hỏi đáp; không tự dẫn toàn bộ chương trình và không thay nhóm kết luận.</p>
+        <article class="usage-note-card">
+          <strong>Có trách nhiệm</strong>
+          <p>Thông tin AI được kiểm chứng bằng giáo trình LLCT/MLN111, nghị quyết hoặc văn bản chính thống khi cần.</p>
         </article>
-
-        <article class="module">
-          <header class="module-header">
-            <h2 class="module-title">Kiểm chứng có trách nhiệm</h2>
-            <span class="module-index">03</span>
-          </header>
-          <ul class="usage-list">
-            <li>Đối chiếu thông tin AI với giáo trình LLCT/MLN111, nghị quyết hoặc văn bản chính thống khi cần.</li>
-            <li>System prompt yêu cầu VoiceBot ưu tiên context giáo trình, không bịa và trả lời thận trọng khi thiếu dữ liệu.</li>
-            <li>Nhóm dùng kịch bản expected response để test: đúng vai trò, đúng nội dung, không Markdown/bullet gây khó nghe khi TTS.</li>
-          </ul>
-        </article>
-
-        <article class="module">
-          <header class="module-header">
-            <h2 class="module-title">Phân định trách nhiệm</h2>
-            <span class="module-index">04</span>
-          </header>
-          <div class="usage-columns">
-            <div class="trait">
-              <strong>AI output</strong>
-              <span>Gợi ý code, UI, kịch bản hỏi đáp, tóm tắt ban đầu, truy xuất context và câu trả lời nháp của VoiceBot.</span>
-            </div>
-            <div class="trait">
-              <strong>Sinh viên biên soạn</strong>
-              <span>Chọn lọc nội dung, sửa văn phong, kiểm chứng nguồn, thiết kế web/thuyết trình, phản biện và chịu trách nhiệm cuối cùng.</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="module">
-          <header class="module-header">
-            <h2 class="module-title">Liêm chính học thuật</h2>
-            <span class="module-index">05</span>
-          </header>
-          <div class="integrity-banner">
-            Không để AI làm thay hoàn toàn. AI chỉ hỗ trợ kỹ thuật, tóm tắt, truy xuất và trình bày sáng tạo; nội dung cuối cùng do nhóm kiểm tra, chỉnh sửa và chịu trách nhiệm.
-          </div>
+        <article class="usage-note-card">
+          <strong>Sáng tạo</strong>
+          <p>AI hỗ trợ tạo VoiceBot, sơ đồ/luồng RAG, quiz và trải nghiệm nghe nói; không thay thế sinh viên.</p>
         </article>
       </section>
+
+      <div class="integrity-banner">
+        Liêm chính học thuật: Không để AI làm thay hoàn toàn. AI output và phần sinh viên biên soạn được phân định rõ; nội dung cuối cùng do nhóm kiểm tra, chỉnh sửa và chịu trách nhiệm.
+      </div>
     </div>
   </main>
 
@@ -1448,6 +1461,7 @@
     const tabPanels = {
       lesson: document.getElementById("lessonTab"),
       avatar: document.getElementById("avatarTab"),
+      quiz: document.getElementById("quizTab"),
       usage: document.getElementById("usageTab")
     };
 
@@ -1499,25 +1513,6 @@
       });
     });
 
-    const checks = document.querySelectorAll(".method-check");
-    const methodScore = document.getElementById("methodScore");
-    const methodMessage = document.getElementById("methodMessage");
-
-    function updateMethodScore() {
-      const score = Array.from(checks).reduce((total, input) => (
-        input.checked ? total + Number(input.dataset.score) : total
-      ), 0);
-      methodScore.textContent = String(score);
-      methodMessage.textContent = score === 100
-        ? "Đủ ý. Bạn có thể chốt: toàn diện là thấy nhiều mặt, tìm mặt bản chất, đặt trong điều kiện cụ thể và tránh phiến diện."
-        : score >= 75
-          ? "Gần đủ. Hãy thêm cảnh báo sai lầm phương pháp để phần nói sắc hơn."
-          : score >= 50
-            ? "Bạn đã có nền tảng, nhưng bài thuyết trình còn thiếu bối cảnh cụ thể và cảnh báo sai lầm phương pháp."
-            : "Còn phiến diện. Hãy bật thêm các yêu cầu để phần phân tích đúng tinh thần biện chứng.";
-    }
-
-    checks.forEach((input) => input.addEventListener("change", updateMethodScore));
 
     const phaseSlider = document.getElementById("phaseSlider");
     const phaseOutput = document.getElementById("phaseOutput");
