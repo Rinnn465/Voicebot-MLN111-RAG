@@ -34,6 +34,17 @@ class FocusUiContractTest(unittest.TestCase):
         self.assertIn('setVisualState("thinking")', js)
         self.assertIn('setVisualState("speaking")', js)
 
+    def test_ai_usage_tab_is_present_and_transparent(self):
+        html = read("web/index.html")
+
+        self.assertIn('data-tab-target="usage"', html)
+        self.assertIn('id="usageTab"', html)
+        self.assertIn('NotebookLM', html)
+        self.assertIn('Qwen/Qwen3-Embedding-4B', html)
+        self.assertIn('OpenAI API', html)
+        self.assertIn('Liêm chính học thuật', html)
+        self.assertIn('Không để AI làm thay hoàn toàn', html)
+
 
 if __name__ == "__main__":
     unittest.main()

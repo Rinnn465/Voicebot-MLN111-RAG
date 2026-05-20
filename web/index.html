@@ -82,9 +82,9 @@
       left: 50%;
       z-index: 30;
       display: inline-grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 4px;
-      width: min(520px, calc(100vw - 28px));
+      width: min(760px, calc(100vw - 28px));
       padding: 5px;
       border: 1px solid rgba(21, 21, 21, 0.16);
       border-radius: 18px;
@@ -883,6 +883,83 @@
       50% { box-shadow: 0 0 0 12px rgba(251,113,133,0); }
     }
 
+
+    .usage-compact {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      padding: 18px;
+    }
+
+    .usage-card {
+      min-height: 138px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: grid;
+      align-content: start;
+      gap: 8px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.62);
+    }
+
+    .usage-card strong {
+      color: var(--teal);
+      font-size: 15px;
+    }
+
+    .usage-card span,
+    .usage-note,
+    .usage-list li {
+      color: #34413b;
+      font-size: 13px;
+      line-height: 1.58;
+    }
+
+    .usage-flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      padding: 18px;
+    }
+
+    .usage-step {
+      border: 1px solid rgba(21, 21, 21, 0.16);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fffdf5;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .usage-columns {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      padding: 18px;
+    }
+
+    .usage-list {
+      margin: 0;
+      padding: 18px 22px 18px 38px;
+    }
+
+    .usage-list li + li {
+      margin-top: 8px;
+    }
+
+    .integrity-banner {
+      margin: 18px;
+      border-left: 5px solid var(--green);
+      border-radius: 8px;
+      padding: 16px 18px;
+      background: rgba(63, 123, 68, 0.12);
+      color: #203525;
+      font-weight: 800;
+      line-height: 1.62;
+    }
+
     @media (max-width: 980px) {
       .lesson-grid,
       .principle-stage,
@@ -908,7 +985,10 @@
       .principle-picker,
       .quiz-options,
       .node-grid,
-      .step-track {
+      .step-track,
+      .usage-compact,
+      .usage-flow,
+      .usage-columns {
         grid-template-columns: 1fr;
       }
       .app-shell { min-height: 100svh; padding: 74px 14px 230px; }
@@ -929,7 +1009,11 @@
     </button>
     <button class="tab-button" type="button" data-tab-target="avatar" aria-controls="avatarTab">
       <i data-lucide="bot" aria-hidden="true"></i>
-      <span>Tab 2 - Avatar</span>
+      <span>Tab 2 - VoiceBot</span>
+    </button>
+    <button class="tab-button" type="button" data-tab-target="usage" aria-controls="usageTab">
+      <i data-lucide="shield-check" aria-hidden="true"></i>
+      <span>Tab 3 - AI Usage</span>
     </button>
   </nav>
 
@@ -1108,6 +1192,98 @@
     </div>
   </main>
 
+
+  <main id="usageTab" class="tab-panel lesson-panel" hidden aria-labelledby="usageTitle">
+    <div class="lesson-grid">
+      <aside class="lesson-intro">
+        <div>
+          <p class="eyebrow">Minh bạch AI</p>
+          <h1 id="usageTitle">AI Usage</h1>
+          <p class="lead">
+            AI được dùng như công cụ hỗ trợ: lập trình VoiceBot, tóm tắt tài liệu, truy xuất giáo trình và tạo trải nghiệm hỏi đáp. Nhóm vẫn kiểm chứng, chỉnh sửa và chịu trách nhiệm nội dung cuối cùng.
+          </p>
+        </div>
+      </aside>
+
+      <section class="lesson-flow" aria-label="Tổng hợp sử dụng AI">
+        <article class="module">
+          <header class="module-header">
+            <h2 class="module-title">Công cụ đã dùng</h2>
+            <span class="module-index">01</span>
+          </header>
+          <div class="usage-compact">
+            <div class="usage-card">
+              <strong>ChatGPT / Codex</strong>
+              <span>Hỗ trợ code web, backend, prompt và kịch bản test podcast. Nhóm chạy thử, sửa lỗi và biên soạn lại.</span>
+            </div>
+            <div class="usage-card">
+              <strong>NotebookLM</strong>
+              <span>Tổng hợp, gói gọn tài liệu học tập để định hướng slide/web. Nhóm đối chiếu lại với giáo trình LLCT/MLN111.</span>
+            </div>
+            <div class="usage-card">
+              <strong>RAG VoiceBot</strong>
+              <span>Qwen/Qwen3-Embedding-4B + Chroma truy xuất tài liệu; OpenAI API sinh câu trả lời; Valsea/ElevenLabs hỗ trợ giọng nói.</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="module">
+          <header class="module-header">
+            <h2 class="module-title">Luồng tạo câu trả lời</h2>
+            <span class="module-index">02</span>
+          </header>
+          <div class="usage-flow" aria-label="Quy trình RAG">
+            <div class="usage-step">Giáo trình MLN111</div>
+            <div class="usage-step">Qwen embedding</div>
+            <div class="usage-step">Chroma / RAG context</div>
+            <div class="usage-step">OpenAI API trả lời</div>
+            <div class="usage-step">Nhóm kiểm chứng</div>
+          </div>
+          <p class="map-result">VoiceBot chỉ đóng vai trò khách mời hỗ trợ hỏi đáp; không tự dẫn toàn bộ chương trình và không thay nhóm kết luận.</p>
+        </article>
+
+        <article class="module">
+          <header class="module-header">
+            <h2 class="module-title">Kiểm chứng có trách nhiệm</h2>
+            <span class="module-index">03</span>
+          </header>
+          <ul class="usage-list">
+            <li>Đối chiếu thông tin AI với giáo trình LLCT/MLN111, nghị quyết hoặc văn bản chính thống khi cần.</li>
+            <li>System prompt yêu cầu VoiceBot ưu tiên context giáo trình, không bịa và trả lời thận trọng khi thiếu dữ liệu.</li>
+            <li>Nhóm dùng kịch bản expected response để test: đúng vai trò, đúng nội dung, không Markdown/bullet gây khó nghe khi TTS.</li>
+          </ul>
+        </article>
+
+        <article class="module">
+          <header class="module-header">
+            <h2 class="module-title">Phân định trách nhiệm</h2>
+            <span class="module-index">04</span>
+          </header>
+          <div class="usage-columns">
+            <div class="trait">
+              <strong>AI output</strong>
+              <span>Gợi ý code, UI, kịch bản hỏi đáp, tóm tắt ban đầu, truy xuất context và câu trả lời nháp của VoiceBot.</span>
+            </div>
+            <div class="trait">
+              <strong>Sinh viên biên soạn</strong>
+              <span>Chọn lọc nội dung, sửa văn phong, kiểm chứng nguồn, thiết kế web/thuyết trình, phản biện và chịu trách nhiệm cuối cùng.</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="module">
+          <header class="module-header">
+            <h2 class="module-title">Liêm chính học thuật</h2>
+            <span class="module-index">05</span>
+          </header>
+          <div class="integrity-banner">
+            Không để AI làm thay hoàn toàn. AI chỉ hỗ trợ kỹ thuật, tóm tắt, truy xuất và trình bày sáng tạo; nội dung cuối cùng do nhóm kiểm tra, chỉnh sửa và chịu trách nhiệm.
+          </div>
+        </article>
+      </section>
+    </div>
+  </main>
+
   <main id="avatarTab" class="tab-panel avatar-panel" hidden aria-labelledby="appTitle">
     <div class="app-shell">
       <div class="top-status" aria-live="polite">
@@ -1271,7 +1447,8 @@
     const tabButtons = document.querySelectorAll("[data-tab-target]");
     const tabPanels = {
       lesson: document.getElementById("lessonTab"),
-      avatar: document.getElementById("avatarTab")
+      avatar: document.getElementById("avatarTab"),
+      usage: document.getElementById("usageTab")
     };
 
     tabButtons.forEach((button) => {
