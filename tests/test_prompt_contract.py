@@ -17,6 +17,7 @@ class PromptContractTest(unittest.TestCase):
         self.assertIn("[CONTEXT]\nđoạn giáo trình\n[/CONTEXT]", prompt)
         self.assertIn("[USER_QUERY]\ncâu hỏi MC\n[/USER_QUERY]", prompt)
         self.assertIn("văn phong Podcast tự nhiên", prompt)
+        self.assertIn("Không mặc định người hỏi là MC", prompt)
 
     def test_intro_is_added_only_when_mc_requests_intro(self):
         answer = apply_intro_policy(
@@ -71,12 +72,22 @@ class PromptContractTest(unittest.TestCase):
         self.assertIn("Ý một", clean)
         self.assertIn("Ý hai", clean)
 
+    def test_sanitize_tts_text_removes_trailing_offer_to_continue(self):
+        raw = "Nội dung chính đã đủ ý. Nếu như bạn cần thì mình có thể diễn giải thêm."
+
+        clean = sanitize_tts_text(raw)
+
+        self.assertEqual(clean, "Nội dung chính đã đủ ý.")
+
     def test_system_prompt_keeps_voicebot_as_supporting_guest(self):
         self.assertIn("VoiceBot", SYSTEM_PROMPT)
         self.assertIn("không thay thế toàn bộ phần thuyết trình", SYSTEM_PROMPT)
         self.assertIn("phong cách podcast", SYSTEM_PROMPT.lower())
         self.assertIn("ngoài kịch bản", SYSTEM_PROMPT)
         self.assertIn("chỉ nói câu giới thiệu", SYSTEM_PROMPT.lower())
+        self.assertIn("Không mặc định người hỏi là MC", SYSTEM_PROMPT)
+        self.assertIn('"nhóm tôi"', SYSTEM_PROMPT)
+        self.assertIn('không thêm lời mời kiểu "Nếu bạn cần thì mình', SYSTEM_PROMPT)
 
 
 if __name__ == "__main__":
