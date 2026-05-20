@@ -25,10 +25,11 @@ const ANIMATION_CONFIG = {
     loop: THREE.LoopOnce,
   },
   listening: {
-    url: "/static/animations/VRMA_01.vrma",
-    trimStart: 0.3,
-    trimEnd: 7.8,
-    timeScale: 0.62,
+    url: "/static/animations/VRMA_02.vrma",
+    trimStart: 2.32,
+    trimEnd: 2.82,
+    timeScale: 0.2,
+    loop: THREE.LoopPingPong,
   },
   thinking: {
     url: "/static/animations/VRMA_06.vrma",
@@ -818,9 +819,9 @@ function updateAnimatedStateOverlay(elapsed) {
   const thinking = currentState === "thinking";
   const listening = currentState === "listening";
   const speechMotion = speaking ? speechEnergy * speechProfile.energy : 0;
-  const allowHeadOverlay = speaking || listening;
+  const allowHeadOverlay = speaking;
 
-  avatarRoot.position.y = avatarBaseY + Math.sin(elapsed * 1.9) * 0.006;
+  avatarRoot.position.y = avatarBaseY + Math.sin(elapsed * (listening ? 1.15 : 1.9)) * (listening ? 0.01 : 0.006);
 
   if (activeAnimationAction) {
     const baseTimeScale = ANIMATION_CONFIG[activeAnimationState]?.timeScale ?? 0.68;
@@ -838,7 +839,11 @@ function updateAnimatedStateOverlay(elapsed) {
   if (headBone && allowHeadOverlay) {
     const nod = speaking ? Math.sin(elapsed * 6.4 * speechProfile.gestureRate) * speechEnergy * 0.035 : 0;
     headBone.rotation.x += -nod + currentLook.y;
-    headBone.rotation.y += (listening ? Math.sin(elapsed * 1.8) * 0.06 : 0) + currentLook.x;
+    headBone.rotation.y += currentLook.x;
+  }
+
+  if (listening) {
+    updateEarWiggle(elapsed);
   }
 }
 
