@@ -4,10 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Voicebot MLN111</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23151515'/%3E%3Cpath d='M16 43V21h7l9 13 9-13h7v22h-7V32L34 43h-4l-7-11v11z' fill='%235eead4'/%3E%3C/svg%3E" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Literata:opsz,wght@7..72,600;7..72,700&display=swap" rel="stylesheet" />
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -25,16 +26,24 @@
 
   <style>
     :root {
-      --bg: #050812;
-      --panel: rgba(10, 16, 31, 0.72);
-      --line: rgba(255, 255, 255, 0.14);
-      --text: #f8fafc;
-      --muted: #9aa7bb;
+      --ink: #151515;
+      --paper: #f7f8f3;
+      --paper-deep: #e8efe7;
+      --panel: rgba(255, 255, 250, 0.88);
+      --line: rgba(21, 21, 21, 0.14);
+      --muted: #65706b;
+      --teal: #0f766e;
+      --red: #c2410c;
+      --gold: #d97706;
+      --green: #3f7b44;
+      --blue: #2563eb;
+      --night: #050812;
+      --night-panel: rgba(10, 16, 31, 0.72);
+      --night-line: rgba(255, 255, 255, 0.14);
+      --night-text: #f8fafc;
+      --night-muted: #9aa7bb;
       --cyan: #5eead4;
-      --blue: #60a5fa;
-      --gold: #f5c66b;
       --rose: #fb7185;
-      --green: #86efac;
     }
 
     * { box-sizing: border-box; }
@@ -42,26 +51,606 @@
     body {
       min-height: 100vh;
       margin: 0;
-      overflow: hidden;
-      color: var(--text);
-      font-family: "Be Vietnam Pro", system-ui, sans-serif;
+      color: var(--ink);
+      font-family: "Be Vietnam Pro", ui-sans-serif, sans-serif;
       background:
-        radial-gradient(circle at 50% 38%, rgba(94, 234, 212, 0.18), transparent 25rem),
-        radial-gradient(circle at 25% 18%, rgba(96, 165, 250, 0.18), transparent 28rem),
-        radial-gradient(circle at 80% 72%, rgba(245, 198, 107, 0.12), transparent 24rem),
+        linear-gradient(90deg, rgba(15, 118, 110, 0.08) 0 1px, transparent 1px 100%),
+        linear-gradient(rgba(194, 65, 12, 0.07) 0 1px, transparent 1px 100%),
+        linear-gradient(135deg, #f7f8f3 0%, #eef4ed 48%, #f8f4ed 100%);
+      background-size: 34px 34px, 34px 34px, auto;
+    }
+
+    body[data-active-tab="avatar"] {
+      overflow: hidden;
+      color: var(--night-text);
+      background:
         linear-gradient(135deg, #030712 0%, #07111f 46%, #020617 100%);
     }
 
-    body::before {
-      content: "";
+    button, input {
+      font: inherit;
+    }
+
+    .hidden,
+    [hidden] {
+      display: none !important;
+    }
+
+    .tab-dock {
       position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image:
+      top: 18px;
+      left: 50%;
+      z-index: 30;
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      width: min(520px, calc(100vw - 28px));
+      padding: 5px;
+      border: 1px solid rgba(21, 21, 21, 0.16);
+      border-radius: 18px;
+      background: rgba(255, 255, 250, 0.82);
+      box-shadow: 0 18px 60px rgba(21, 21, 21, 0.14);
+      transform: translateX(-50%);
+      backdrop-filter: blur(18px);
+    }
+
+    body[data-active-tab="avatar"] .tab-dock {
+      border-color: var(--night-line);
+      background: rgba(2, 6, 23, 0.68);
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    .tab-button {
+      min-height: 42px;
+      border: 0;
+      border-radius: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 800;
+      transition: color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .tab-button i {
+      width: 17px;
+      height: 17px;
+    }
+
+    .tab-button:hover { transform: translateY(-1px); }
+
+    .tab-button.is-active {
+      color: white;
+      background: #151515;
+      box-shadow: 0 10px 24px rgba(21, 21, 21, 0.18);
+    }
+
+    body[data-active-tab="avatar"] .tab-button {
+      color: #cbd5e1;
+    }
+
+    body[data-active-tab="avatar"] .tab-button.is-active {
+      color: #031016;
+      background: var(--cyan);
+    }
+
+    .tab-panel {
+      min-height: 100vh;
+    }
+
+    .lesson-panel {
+      padding: 92px clamp(16px, 4vw, 56px) 42px;
+    }
+
+    .lesson-grid {
+      width: min(1280px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(260px, 0.76fr) minmax(0, 1.24fr);
+      gap: clamp(18px, 3vw, 34px);
+      align-items: start;
+    }
+
+    .lesson-intro {
+      position: sticky;
+      top: 92px;
+      min-height: calc(100vh - 134px);
+      display: grid;
+      align-content: start;
+      gap: 22px;
+      padding: clamp(18px, 2.4vw, 30px);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 250, 0.86);
+      box-shadow: 0 24px 70px rgba(21, 21, 21, 0.13);
+      overflow: hidden;
+    }
+
+    .lesson-intro::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 8px;
+      background: linear-gradient(var(--teal), var(--red), var(--gold), var(--green));
+    }
+
+    .eyebrow {
+      margin: 0 0 14px;
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 10ch;
+      margin-bottom: 18px;
+      font-family: "Literata", Georgia, serif;
+      font-size: clamp(42px, 6vw, 76px);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      color: #2f3935;
+      font-size: clamp(15px, 1.8vw, 18px);
+      line-height: 1.72;
+    }
+
+    .lesson-flow {
+      display: grid;
+      gap: 18px;
+    }
+
+    .module {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 18px 48px rgba(21, 21, 21, 0.1);
+      overflow: hidden;
+    }
+
+    .module-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .module-title {
+      margin: 0;
+      font-family: "Literata", Georgia, serif;
+      font-size: clamp(22px, 2.8vw, 34px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .module-index {
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      color: white;
+      background: #151515;
+      font-weight: 900;
+    }
+
+    .principle-picker {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 18px;
+    }
+
+    .principle-button {
+      min-height: 96px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: grid;
+      align-content: center;
+      gap: 7px;
+      padding: 16px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.58);
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .principle-button:hover {
+      transform: translateY(-2px);
+      border-color: rgba(15, 118, 110, 0.42);
+    }
+
+    .principle-button.is-selected {
+      border-color: #151515;
+      background: #151515;
+      color: white;
+    }
+
+    .principle-button small {
+      color: inherit;
+      opacity: 0.68;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .principle-button strong {
+      font-size: 17px;
+      line-height: 1.3;
+    }
+
+    .principle-stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 0.72fr);
+      gap: 18px;
+      padding: 0 18px 18px;
+    }
+
+    .statement {
+      display: grid;
+      gap: 14px;
+      padding: 20px;
+      border-radius: 8px;
+      color: white;
+      background: #151515;
+    }
+
+    .statement h3 {
+      margin-bottom: 0;
+      font-size: 20px;
+    }
+
+    .statement p {
+      margin: 0;
+      color: #e7efe8;
+      line-height: 1.68;
+    }
+
+    .trait-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .trait {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .trait strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--teal);
+    }
+
+    .trait span {
+      color: #34413b;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .map-board {
+      position: relative;
+      min-height: 360px;
+      padding: 18px;
+      background:
+        linear-gradient(90deg, rgba(21, 21, 21, 0.05) 1px, transparent 1px),
+        linear-gradient(rgba(21, 21, 21, 0.05) 1px, transparent 1px),
+        #fffdf5;
+      background-size: 28px 28px;
+    }
+
+    .node-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .concept-node {
+      min-height: 92px;
+      border: 1px solid rgba(21, 21, 21, 0.2);
+      border-radius: 8px;
+      display: grid;
+      align-content: center;
+      gap: 6px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.82);
+      cursor: pointer;
+      text-align: left;
+      transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+    }
+
+    .concept-node:hover,
+    .concept-node.is-hot {
+      transform: translateY(-2px);
+      border-color: var(--red);
+      background: #fff3eb;
+    }
+
+    .concept-node strong {
+      font-size: 14px;
+    }
+
+    .concept-node span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .map-result {
+      margin-top: 18px;
+      border-left: 4px solid var(--red);
+      padding: 13px 14px;
+      background: rgba(194, 65, 12, 0.08);
+      color: #3b312c;
+      line-height: 1.62;
+    }
+
+    .scenario-lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.78fr);
+      gap: 18px;
+      padding: 18px;
+    }
+
+    .check-panel {
+      display: grid;
+      gap: 12px;
+    }
+
+    .check-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.62);
+      cursor: pointer;
+    }
+
+    .check-card input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--teal);
+      margin-top: 2px;
+    }
+
+    .check-card strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .check-card span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .score-panel {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      padding: 18px;
+      border-radius: 8px;
+      color: white;
+      background: var(--teal);
+    }
+
+    .score-number {
+      font-family: "Literata", Georgia, serif;
+      font-size: 70px;
+      line-height: 0.9;
+    }
+
+    .score-panel p {
+      margin: 0;
+      line-height: 1.62;
+    }
+
+    .development-board {
+      padding: 18px;
+    }
+
+    .step-track {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .step-card {
+      min-height: 118px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.62);
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .step-card.is-active {
+      transform: translateY(-2px);
+      border-color: var(--gold);
+      background: #fff7df;
+    }
+
+    .step-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--gold);
+    }
+
+    .step-card span {
+      color: #34413b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .phase-slider {
+      width: 100%;
+      accent-color: var(--gold);
+    }
+
+    .phase-output {
+      margin-top: 14px;
+      border-left: 4px solid var(--gold);
+      padding: 13px 14px;
+      background: rgba(217, 119, 6, 0.1);
+      color: #3b312c;
+      line-height: 1.62;
+    }
+
+    .quiz-arena {
+      display: grid;
+      padding: 18px;
+      gap: 16px;
+    }
+
+    .quiz-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .quiz-counter {
+      color: white;
+      background: #151515;
+      border-radius: 999px;
+      padding: 8px 11px;
+    }
+
+    .quiz-question {
+      margin: 0;
+      font-family: "Literata", Georgia, serif;
+      font-size: clamp(24px, 3.2vw, 38px);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .quiz-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .quiz-option {
+      min-height: 94px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.62);
+      color: var(--ink);
+      cursor: pointer;
+      text-align: left;
+      font-weight: 700;
+      line-height: 1.45;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .quiz-option:hover {
+      transform: translateY(-2px);
+      border-color: var(--blue);
+    }
+
+    .quiz-option.is-correct {
+      border-color: var(--green);
+      background: rgba(63, 123, 68, 0.14);
+    }
+
+    .quiz-option.is-wrong {
+      border-color: var(--red);
+      background: rgba(194, 65, 12, 0.12);
+    }
+
+    .quiz-option.is-muted {
+      opacity: 0.54;
+    }
+
+    .quiz-feedback {
+      min-height: 54px;
+      border-left: 4px solid var(--blue);
+      padding: 13px 14px;
+      background: rgba(37, 99, 235, 0.08);
+      color: #27364f;
+      line-height: 1.62;
+    }
+
+    .quiz-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .quiz-action-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .quiz-control {
+      min-height: 42px;
+      border: 1px solid rgba(21, 21, 21, 0.18);
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 13px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.72);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .quiz-control.primary {
+      color: white;
+      background: #151515;
+    }
+
+    .quiz-control:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+
+    .quiz-score {
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .avatar-panel {
+      color: var(--night-text);
+      background:
         linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
-      background-size: 48px 48px;
-      mask-image: radial-gradient(circle at center, black 0 46%, transparent 78%);
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(135deg, #030712 0%, #07111f 46%, #020617 100%);
+      background-size: 48px 48px, 48px 48px, auto;
     }
 
     .app-shell {
@@ -75,14 +664,14 @@
 
     .top-status {
       position: fixed;
-      top: 22px;
+      top: 78px;
       left: 50%;
       z-index: 5;
       transform: translateX(-50%);
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      border: 1px solid var(--line);
+      border: 1px solid var(--night-line);
       border-radius: 999px;
       background: rgba(2, 6, 23, 0.58);
       padding: 10px 14px;
@@ -143,10 +732,10 @@
       right: 16px;
       bottom: 16px;
       z-index: 2;
-      border: 1px solid var(--line);
+      border: 1px solid var(--night-line);
       border-radius: 999px;
       background: rgba(2, 6, 23, 0.72);
-      color: var(--muted);
+      color: var(--night-muted);
       padding: 8px 12px;
       font-size: 12px;
       font-weight: 600;
@@ -160,7 +749,7 @@
       z-index: 10;
       width: min(760px, calc(100vw - 28px));
       transform: translateX(-50%);
-      border: 1px solid var(--line);
+      border: 1px solid var(--night-line);
       border-radius: 28px;
       background: rgba(3, 7, 18, 0.68);
       box-shadow: 0 22px 90px rgba(0, 0, 0, 0.46);
@@ -209,7 +798,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      color: var(--muted);
+      color: var(--night-muted);
       font-size: 12px;
       font-weight: 700;
     }
@@ -261,7 +850,7 @@
     .status-line {
       min-height: 20px;
       margin: 8px 4px 0;
-      color: var(--muted);
+      color: var(--night-muted);
       font-size: 12px;
       line-height: 1.5;
     }
@@ -273,9 +862,6 @@
       border-top: 1px solid rgba(255,255,255,0.1);
       padding: 10px 4px 0;
     }
-
-    .answer-card.hidden,
-    .hidden { display: none !important; }
 
     .answer-markdown {
       color: #edf2f7;
@@ -294,9 +880,36 @@
       50% { box-shadow: 0 0 0 12px rgba(251,113,133,0); }
     }
 
+    @media (max-width: 980px) {
+      .lesson-grid,
+      .principle-stage,
+      .scenario-lab {
+        grid-template-columns: 1fr;
+      }
+
+      .lesson-intro {
+        position: relative;
+        top: auto;
+        min-height: auto;
+      }
+
+      .step-track {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
     @media (max-width: 720px) {
-      body { overflow-y: auto; }
-      .app-shell { min-height: 100svh; padding-bottom: 230px; }
+      body[data-active-tab="avatar"] { overflow-y: auto; }
+      .lesson-panel { padding-inline: 12px; }
+      .tab-dock { top: 10px; }
+      .principle-picker,
+      .quiz-options,
+      .node-grid,
+      .step-track {
+        grid-template-columns: 1fr;
+      }
+      .app-shell { min-height: 100svh; padding: 74px 14px 230px; }
+      .top-status { top: 66px; }
       .model-stage { width: 100%; height: 62vh; }
       .widget-main { grid-template-columns: 1fr; }
       .mic-button { width: 100%; height: 56px; border-radius: 18px; }
@@ -305,61 +918,515 @@
   </style>
 </head>
 
-<body data-state="idle" data-avatar-state="idle">
-  <main class="app-shell" aria-labelledby="appTitle">
-    <div class="top-status" aria-live="polite">
-      <i id="stateIcon" data-lucide="sparkles" aria-hidden="true"></i>
-      <span id="stateLabel">Idle</span>
-      <span id="avatarStateText" class="hidden" aria-hidden="true">Idle</span>
-    </div>
+<body data-state="idle" data-avatar-state="idle" data-active-tab="lesson">
+  <nav class="tab-dock" aria-label="Chọn màn hình">
+    <button class="tab-button is-active" type="button" data-tab-target="lesson" aria-controls="lessonTab">
+      <i data-lucide="presentation" aria-hidden="true"></i>
+      <span>Tab 1 - Nội dung</span>
+    </button>
+    <button class="tab-button" type="button" data-tab-target="avatar" aria-controls="avatarTab">
+      <i data-lucide="bot" aria-hidden="true"></i>
+      <span>Tab 2 - Avatar</span>
+    </button>
+  </nav>
 
-    <section id="modelRenderer" class="model-stage" aria-label="AI model renderer">
-      <h1 id="appTitle" class="hidden">Voicebot MLN111</h1>
-      <div id="avatarContainer" class="avatar-canvas-wrap">
-        <canvas id="avatarCanvas"></canvas>
-        <div id="avatarLoading" class="avatar-loading">Đang tải avatar VRM...</div>
-      </div>
-    </section>
-
-    <section id="voiceWidget" class="voice-widget" aria-label="Voice chat widget">
-      <div class="widget-main">
-        <button
-          id="micBtn"
-          class="mic-button"
-          type="button"
-          title="Bật hoặc tắt mic"
-          aria-label="Bật mic để nói với AI"
-          aria-pressed="false"
-        >
-          <i data-lucide="mic" aria-hidden="true"></i>
-        </button>
-
-        <div class="transcript-panel">
-          <div class="widget-label-row">
-            <span>Voice chat</span>
-            <span id="micStatus" class="mic-status">Mic sẵn sàng</span>
-          </div>
-          <p id="transcriptFinal" class="transcript-text">Nhấn mic để nói. Tắt mic sẽ tự gửi câu hỏi và phát câu trả lời.</p>
-          <p id="transcriptPartial" class="transcript-partial"></p>
-          <textarea
-            id="question"
-            class="transcript-input"
-            rows="2"
-            placeholder="Transcript sẽ xuất hiện ở đây..."
-            aria-label="Transcript hoặc câu hỏi"
-          ></textarea>
+  <main id="lessonTab" class="tab-panel lesson-panel" aria-labelledby="lessonTitle">
+    <div class="lesson-grid">
+      <aside class="lesson-intro">
+        <div>
+          <p class="eyebrow">MLN111 - Chương 2</p>
+          <h1 id="lessonTitle">Hai nguyên lý biện chứng</h1>
+          <p class="lead">
+            Nội dung rút từ phần “Hai nguyên lý của phép biện chứng duy vật”: nguyên lý về mối liên hệ phổ biến và nguyên lý về sự phát triển.
+          </p>
         </div>
-      </div>
+      </aside>
 
-      <div id="status" class="status-line" aria-live="polite"></div>
+      <section class="lesson-flow" aria-label="Nội dung thuyết trình tương tác">
+        <article class="module">
+          <header class="module-header">
+            <h2 class="module-title">Chọn nguyên lý để trình bày</h2>
+            <span class="module-index">01</span>
+          </header>
+          <div class="principle-picker" role="group" aria-label="Chọn nguyên lý">
+            <button class="principle-button is-selected" type="button" data-principle="relation">
+              <small>Nguyên lý 1</small>
+              <strong>Mối liên hệ phổ biến</strong>
+            </button>
+            <button class="principle-button" type="button" data-principle="development">
+              <small>Nguyên lý 2</small>
+              <strong>Sự phát triển</strong>
+            </button>
+          </div>
+          <div class="principle-stage">
+            <div class="statement">
+              <h3 id="principleName">Mối liên hệ phổ biến</h3>
+              <p id="principleSummary">
+                Sự vật, hiện tượng tồn tại trong các mối liên hệ qua lại, quy định, tác động, thâm nhập và chuyển hóa lẫn nhau. Không có đối tượng nào tồn tại hoàn toàn cô lập.
+              </p>
+            </div>
+            <div class="trait-list" id="principleTraits" aria-live="polite"></div>
+          </div>
+        </article>
 
-      <section id="result" class="answer-card hidden" aria-label="Câu trả lời AI">
-        <div id="answer" class="answer-markdown"></div>
-        <audio id="answerAudio" class="hidden" controls></audio>
+        <article class="module">
+          <header class="module-header">
+            <h2 class="module-title">Bản đồ liên hệ</h2>
+            <span class="module-index">02</span>
+          </header>
+          <div class="map-board">
+            <div class="node-grid">
+              <button class="concept-node is-hot" type="button" data-map="student">
+                <strong>Sinh viên</strong>
+                <span>Chủ thể học tập, nhận thức, hành động.</span>
+              </button>
+              <button class="concept-node" type="button" data-map="class">
+                <strong>Lớp học</strong>
+                <span>Môi trường trực tiếp tạo nhịp trao đổi.</span>
+              </button>
+              <button class="concept-node" type="button" data-map="society">
+                <strong>Xã hội</strong>
+                <span>Nhu cầu, chuẩn mực, điều kiện lịch sử.</span>
+              </button>
+              <button class="concept-node" type="button" data-map="practice">
+                <strong>Thực tiễn</strong>
+                <span>Nơi kiểm nghiệm và đặt nhiệm vụ mới.</span>
+              </button>
+              <button class="concept-node" type="button" data-map="method">
+                <strong>Phương pháp</strong>
+                <span>Cách tiếp cận toàn diện hoặc phiến diện.</span>
+              </button>
+              <button class="concept-node" type="button" data-map="future">
+                <strong>Tương lai</strong>
+                <span>Khuynh hướng biến đổi cần dự báo.</span>
+              </button>
+            </div>
+            <p id="mapResult" class="map-result" aria-live="polite">
+              Chọn từng nút để thấy cách một đối tượng chỉ được hiểu đúng khi đặt vào hệ liên hệ cụ thể.
+            </p>
+          </div>
+        </article>
+
+        <article class="module">
+          <header class="module-header">
+            <h2 class="module-title">Kiểm tra quan điểm toàn diện</h2>
+            <span class="module-index">03</span>
+          </header>
+          <div class="scenario-lab">
+            <div class="check-panel">
+              <label class="check-card">
+                <input type="checkbox" class="method-check" data-score="25" checked />
+                <span><strong>Xem nhiều mặt của đối tượng</strong>Không chỉ nhìn kết quả cuối cùng, mà xét điều kiện, bộ phận, thuộc tính và môi trường.</span>
+              </label>
+              <label class="check-card">
+                <input type="checkbox" class="method-check" data-score="25" checked />
+                <span><strong>Tìm mối liên hệ bản chất</strong>Phân biệt liên hệ chủ yếu với liên hệ phụ để tránh dàn trải.</span>
+              </label>
+              <label class="check-card">
+                <input type="checkbox" class="method-check" data-score="25" />
+                <span><strong>Xét không gian, thời gian cụ thể</strong>Đặt sự vật trong quá khứ, hiện tại và khuynh hướng tương lai.</span>
+              </label>
+              <label class="check-card">
+                <input type="checkbox" class="method-check" data-score="25" />
+                <span><strong>Tránh phiến diện và chiết trung</strong>Không tuyệt đối hóa một mặt, cũng không lắp ghép vô nguyên tắc.</span>
+              </label>
+            </div>
+            <div class="score-panel">
+              <div class="score-number"><span id="methodScore">50</span>%</div>
+              <p id="methodMessage">Bạn đã có nền tảng, nhưng bài thuyết trình còn thiếu bối cảnh cụ thể và cảnh báo sai lầm phương pháp.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="module">
+          <header class="module-header">
+            <h2 class="module-title">Mô phỏng sự phát triển</h2>
+            <span class="module-index">04</span>
+          </header>
+          <div class="development-board">
+            <div class="step-track">
+              <div class="step-card is-active" data-phase-card="0">
+                <strong>1. Tích lũy</strong>
+                <span>Các biến đổi nhỏ xuất hiện trong lòng sự vật cũ.</span>
+              </div>
+              <div class="step-card" data-phase-card="1">
+                <strong>2. Mâu thuẫn</strong>
+                <span>Cái cũ không còn phù hợp với điều kiện mới.</span>
+              </div>
+              <div class="step-card" data-phase-card="2">
+                <strong>3. Bước nhảy</strong>
+                <span>Sự vật mới ra đời, phủ định cái lỗi thời.</span>
+              </div>
+              <div class="step-card" data-phase-card="3">
+                <strong>4. Kế thừa</strong>
+                <span>Yếu tố tích cực được giữ lại và cải tạo.</span>
+              </div>
+            </div>
+            <input id="phaseSlider" class="phase-slider" type="range" min="0" max="3" value="0" step="1" aria-label="Chọn giai đoạn phát triển" />
+            <p id="phaseOutput" class="phase-output" aria-live="polite">
+              Phát triển không phải mọi vận động, mà là vận động theo khuynh hướng đi lên từ thấp đến cao, từ kém hoàn thiện đến hoàn thiện hơn.
+            </p>
+          </div>
+        </article>
+
+        <article class="module">
+          <header class="module-header">
+            <h2 class="module-title">Quiz tương tác cho lớp</h2>
+            <span class="module-index">05</span>
+          </header>
+          <div class="quiz-arena" aria-label="Quiz hai nguyên lý">
+            <div class="quiz-topline">
+              <span>Hỏi lớp - bấm đáp án để chốt</span>
+              <span id="quizCounter" class="quiz-counter">01 / 10</span>
+            </div>
+            <p id="quizQuestion" class="quiz-question">Đang tải câu hỏi...</p>
+            <div id="quizOptions" class="quiz-options" role="group" aria-label="Các đáp án"></div>
+            <p id="quizFeedback" class="quiz-feedback" aria-live="polite">Mời lớp chọn đáp án. Sau đó bấm “Giải thích” nếu cần chốt ý.</p>
+            <div class="quiz-actions">
+              <div class="quiz-action-group">
+                <button id="quizPrev" class="quiz-control" type="button">
+                  <i data-lucide="arrow-left" aria-hidden="true"></i>
+                  Trước
+                </button>
+                <button id="quizExplain" class="quiz-control" type="button">
+                  <i data-lucide="lightbulb" aria-hidden="true"></i>
+                  Giải thích
+                </button>
+                <button id="quizNext" class="quiz-control primary" type="button">
+                  Tiếp
+                  <i data-lucide="arrow-right" aria-hidden="true"></i>
+                </button>
+              </div>
+              <span id="quizScore" class="quiz-score">Điểm lớp: 0/0</span>
+            </div>
+          </div>
+        </article>
       </section>
-    </section>
+    </div>
   </main>
 
+  <main id="avatarTab" class="tab-panel avatar-panel" hidden aria-labelledby="appTitle">
+    <div class="app-shell">
+      <div class="top-status" aria-live="polite">
+        <i id="stateIcon" data-lucide="sparkles" aria-hidden="true"></i>
+        <span id="stateLabel">Idle</span>
+        <span id="avatarStateText" class="hidden" aria-hidden="true">Idle</span>
+      </div>
+
+      <section id="modelRenderer" class="model-stage" aria-label="AI model renderer">
+        <h1 id="appTitle" class="hidden">Voicebot MLN111</h1>
+        <div id="avatarContainer" class="avatar-canvas-wrap">
+          <canvas id="avatarCanvas"></canvas>
+          <div id="avatarLoading" class="avatar-loading">Đang tải avatar VRM...</div>
+        </div>
+      </section>
+
+      <section id="voiceWidget" class="voice-widget" aria-label="Voice chat widget">
+        <div class="widget-main">
+          <button
+            id="micBtn"
+            class="mic-button"
+            type="button"
+            title="Bật hoặc tắt mic"
+            aria-label="Bật mic để nói với AI"
+            aria-pressed="false"
+          >
+            <i data-lucide="mic" aria-hidden="true"></i>
+          </button>
+
+          <div class="transcript-panel">
+            <div class="widget-label-row">
+              <span>Voice chat</span>
+              <span id="micStatus" class="mic-status">Mic sẵn sàng</span>
+            </div>
+            <p id="transcriptFinal" class="transcript-text">Nhấn mic để nói. Tắt mic sẽ tự gửi câu hỏi và phát câu trả lời.</p>
+            <p id="transcriptPartial" class="transcript-partial"></p>
+            <textarea
+              id="question"
+              class="transcript-input"
+              rows="2"
+              placeholder="Transcript sẽ xuất hiện ở đây..."
+              aria-label="Transcript hoặc câu hỏi"
+            ></textarea>
+          </div>
+        </div>
+
+        <div id="status" class="status-line" aria-live="polite"></div>
+
+        <section id="result" class="answer-card hidden" aria-label="Câu trả lời AI">
+          <div id="answer" class="answer-markdown"></div>
+          <audio id="answerAudio" class="hidden" controls></audio>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const principleData = {
+      relation: {
+        name: "Mối liên hệ phổ biến",
+        summary: "Sự vật, hiện tượng tồn tại trong các mối liên hệ qua lại, quy định, tác động, thâm nhập và chuyển hóa lẫn nhau. Không có đối tượng nào tồn tại hoàn toàn cô lập.",
+        traits: [
+          ["Khách quan", "Mối liên hệ không do ý muốn chủ quan tạo ra, mà do sự quy định và tác động qua lại của bản thân sự vật."],
+          ["Phổ biến", "Tự nhiên, xã hội và tư duy đều tồn tại vô vàn mối liên hệ."],
+          ["Đa dạng", "Có liên hệ trực tiếp, gián tiếp, tất nhiên, ngẫu nhiên, bản chất, không bản chất, chủ yếu và thứ yếu."]
+        ]
+      },
+      development: {
+        name: "Sự phát triển",
+        summary: "Phát triển là quá trình vận động theo khuynh hướng đi lên: từ thấp đến cao, từ kém hoàn thiện đến hoàn thiện hơn, từ chất cũ đến chất mới ở trình độ cao hơn.",
+        traits: [
+          ["Khách quan", "Nguồn gốc phát triển nằm trong chính sự vật, đặc biệt ở mâu thuẫn bên trong."],
+          ["Phổ biến", "Phát triển diễn ra trong tự nhiên, xã hội và tư duy, nhưng mỗi lĩnh vực có hình thức riêng."],
+          ["Kế thừa", "Cái mới phủ định cái lỗi thời, đồng thời giữ lại và cải tạo yếu tố tích cực của cái cũ."]
+        ]
+      }
+    };
+
+    const mapData = {
+      student: "Sinh viên không chỉ là cá nhân học thuộc bài. Kết quả học chịu tác động từ mục tiêu, phương pháp, lớp học, tài liệu, thực tiễn và động cơ cá nhân.",
+      class: "Lớp học là môi trường liên hệ trực tiếp: câu hỏi, phản biện, ví dụ và cách giảng làm nội dung triết học trở nên rõ hơn.",
+      society: "Xã hội tạo điều kiện lịch sử cụ thể. Vì thế khi phân tích một quan điểm, cần xét nhu cầu, lợi ích và hoàn cảnh của thời đại.",
+      practice: "Thực tiễn vừa là cơ sở, vừa là nơi kiểm nghiệm nhận thức. Nói ngắn: hiểu đúng phải quay lại hành động.",
+      method: "Phương pháp quyết định cách nhìn. Toàn diện giúp thấy liên hệ bản chất; phiến diện dễ biến một mặt thành toàn bộ sự thật.",
+      future: "Nguyên lý phát triển yêu cầu dự báo khuynh hướng, nhận ra cái mới hợp quy luật và tránh bám chặt cái đã lỗi thời."
+    };
+
+    const phaseData = [
+      "Phát triển không phải mọi vận động, mà là vận động theo khuynh hướng đi lên từ thấp đến cao, từ kém hoàn thiện đến hoàn thiện hơn.",
+      "Khi điều kiện thay đổi, mâu thuẫn giữa cái cũ và yêu cầu mới làm sự vật không thể giữ nguyên như trước.",
+      "Bước nhảy tạo chuyển hóa về chất: cái mới ra đời, cái cũ mất vai trò lịch sử hoặc bị vượt qua.",
+      "Cái mới không phủ định sạch trơn. Nó kế thừa yếu tố hợp lý của cái cũ và cải tạo chúng trong điều kiện mới."
+    ];
+
+    const quizBank = [
+      {
+        question: "Nguyên lý về mối liên hệ phổ biến yêu cầu ta tránh cách nhìn nào?",
+        options: ["Toàn diện", "Lịch sử - cụ thể", "Phiến diện, một chiều", "Phân tích mối liên hệ bản chất"],
+        answer: 2,
+        explain: "Vì sự vật có nhiều mặt, nhiều mối liên hệ. Chỉ nhìn một mặt dễ biến phần nhỏ thành toàn bộ sự thật."
+      },
+      {
+        question: "Cơ sở của các mối liên hệ trong phép biện chứng duy vật là gì?",
+        options: ["Ý niệm tuyệt đối", "Tính thống nhất vật chất của thế giới", "Cảm giác cá nhân", "Sự sắp đặt ngẫu nhiên"],
+        answer: 1,
+        explain: "Giáo trình nêu: thế giới là một chỉnh thể vật chất thống nhất, nên các sự vật không tồn tại cô lập."
+      },
+      {
+        question: "Tính đa dạng của mối liên hệ nghĩa là gì?",
+        options: ["Mọi liên hệ đều như nhau", "Có nhiều loại liên hệ với vai trò khác nhau", "Chỉ có liên hệ trực tiếp", "Chỉ có liên hệ trong tự nhiên"],
+        answer: 1,
+        explain: "Có liên hệ trực tiếp, gián tiếp, tất nhiên, ngẫu nhiên, bản chất, không bản chất, chủ yếu, thứ yếu."
+      },
+      {
+        question: "Phát triển khác vận động ở điểm nào?",
+        options: ["Phát triển là đứng yên", "Mọi vận động đều là phát triển", "Phát triển là vận động theo khuynh hướng đi lên", "Phát triển chỉ là tăng số lượng"],
+        answer: 2,
+        explain: "Phát triển là vận động từ thấp đến cao, kém hoàn thiện đến hoàn thiện hơn, từ chất cũ đến chất mới."
+      },
+      {
+        question: "Quan điểm biện chứng về phát triển nhấn mạnh nguồn gốc nào?",
+        options: ["Mệnh lệnh bên ngoài", "May rủi thuần túy", "Mâu thuẫn bên trong sự vật", "Ý muốn chủ quan"],
+        answer: 2,
+        explain: "Nguồn gốc vận động, phát triển nằm trong sự đấu tranh giữa các mặt đối lập bên trong sự vật."
+      },
+      {
+        question: "Cái mới hợp quy luật nên được ứng xử thế nào trong thực tiễn?",
+        options: ["Bỏ qua vì chưa quen", "Ủng hộ và tạo điều kiện phát triển", "Cấm vì khác cái cũ", "Chờ nó tự thắng"],
+        answer: 1,
+        explain: "Nguyên tắc phát triển yêu cầu sớm phát hiện, ủng hộ cái mới hợp quy luật, chống bảo thủ, trì trệ."
+      },
+      {
+        question: "Khi cái mới ra đời, nó có phủ định sạch trơn cái cũ không?",
+        options: ["Có, xóa toàn bộ", "Không, kế thừa chọn lọc yếu tố tích cực", "Không, giữ nguyên mọi thứ", "Có, vì cái cũ luôn vô dụng"],
+        answer: 1,
+        explain: "Phát triển có tính kế thừa: gạt bỏ mặt lỗi thời, giữ và cải tạo yếu tố còn phù hợp."
+      },
+      {
+        question: "Muốn hiểu đúng một hiện tượng xã hội, nguyên tắc toàn diện yêu cầu gì?",
+        options: ["Xem bối cảnh, điều kiện, các bên liên quan", "Chỉ nghe một nguồn", "Chỉ xét hiện tại", "Chỉ nhìn kết quả cuối"],
+        answer: 0,
+        explain: "Cần đặt đối tượng trong chỉnh thể: mặt, bộ phận, thuộc tính, môi trường, quá khứ, hiện tại, tương lai."
+      },
+      {
+        question: "Vì sao phát triển có thể có bước lùi tạm thời?",
+        options: ["Vì phát triển luôn thất bại", "Vì tiến trình đi lên có thể quanh co, qua vận động chữ chi", "Vì không có quy luật", "Vì cái cũ luôn mạnh hơn"],
+        answer: 1,
+        explain: "Giáo trình nhấn mạnh phát triển theo xu hướng đi lên nhưng quanh co, phức tạp, có thể có bước thụt lùi tương đối."
+      },
+      {
+        question: "Câu chốt đúng nhất cho hai nguyên lý là gì?",
+        options: ["Nhìn sự vật cô lập và giữ nguyên cái cũ", "Nhìn sự vật trong liên hệ và trong quá trình phát triển", "Chỉ cần học thuộc định nghĩa", "Phát triển chỉ là tăng trưởng"],
+        answer: 1,
+        explain: "Đây là câu kết tốt khi thuyết trình: thấy mạng lưới quan hệ và khuynh hướng vận động của sự vật."
+      }
+    ];
+
+    let currentQuizIndex = 0;
+    const quizAnswers = new Array(quizBank.length).fill(null);
+
+    const tabButtons = document.querySelectorAll("[data-tab-target]");
+    const tabPanels = {
+      lesson: document.getElementById("lessonTab"),
+      avatar: document.getElementById("avatarTab")
+    };
+
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const target = button.dataset.tabTarget;
+        document.body.dataset.activeTab = target;
+        Object.entries(tabPanels).forEach(([key, panel]) => {
+          panel.hidden = key !== target;
+        });
+        tabButtons.forEach((item) => {
+          item.classList.toggle("is-active", item === button);
+        });
+        window.dispatchEvent(new Event("resize"));
+      });
+    });
+
+    const principleName = document.getElementById("principleName");
+    const principleSummary = document.getElementById("principleSummary");
+    const principleTraits = document.getElementById("principleTraits");
+
+    function renderPrinciple(key) {
+      const data = principleData[key];
+      principleName.textContent = data.name;
+      principleSummary.textContent = data.summary;
+      principleTraits.innerHTML = data.traits.map(([title, text]) => `
+        <div class="trait">
+          <strong>${title}</strong>
+          <span>${text}</span>
+        </div>
+      `).join("");
+    }
+
+    document.querySelectorAll("[data-principle]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-principle]").forEach((item) => {
+          item.classList.toggle("is-selected", item === button);
+        });
+        renderPrinciple(button.dataset.principle);
+      });
+    });
+
+    document.querySelectorAll("[data-map]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-map]").forEach((item) => {
+          item.classList.toggle("is-hot", item === button);
+        });
+        document.getElementById("mapResult").textContent = mapData[button.dataset.map];
+      });
+    });
+
+    const checks = document.querySelectorAll(".method-check");
+    const methodScore = document.getElementById("methodScore");
+    const methodMessage = document.getElementById("methodMessage");
+
+    function updateMethodScore() {
+      const score = Array.from(checks).reduce((total, input) => (
+        input.checked ? total + Number(input.dataset.score) : total
+      ), 0);
+      methodScore.textContent = String(score);
+      methodMessage.textContent = score === 100
+        ? "Đủ ý. Bạn có thể chốt: toàn diện là thấy nhiều mặt, tìm mặt bản chất, đặt trong điều kiện cụ thể và tránh phiến diện."
+        : score >= 75
+          ? "Gần đủ. Hãy thêm cảnh báo sai lầm phương pháp để phần nói sắc hơn."
+          : score >= 50
+            ? "Bạn đã có nền tảng, nhưng bài thuyết trình còn thiếu bối cảnh cụ thể và cảnh báo sai lầm phương pháp."
+            : "Còn phiến diện. Hãy bật thêm các yêu cầu để phần phân tích đúng tinh thần biện chứng.";
+    }
+
+    checks.forEach((input) => input.addEventListener("change", updateMethodScore));
+
+    const phaseSlider = document.getElementById("phaseSlider");
+    const phaseOutput = document.getElementById("phaseOutput");
+
+    phaseSlider.addEventListener("input", () => {
+      const phase = Number(phaseSlider.value);
+      phaseOutput.textContent = phaseData[phase];
+      document.querySelectorAll("[data-phase-card]").forEach((card) => {
+        card.classList.toggle("is-active", Number(card.dataset.phaseCard) === phase);
+      });
+    });
+
+    const quizQuestion = document.getElementById("quizQuestion");
+    const quizOptions = document.getElementById("quizOptions");
+    const quizCounter = document.getElementById("quizCounter");
+    const quizFeedback = document.getElementById("quizFeedback");
+    const quizScore = document.getElementById("quizScore");
+    const quizPrev = document.getElementById("quizPrev");
+    const quizNext = document.getElementById("quizNext");
+    const quizExplain = document.getElementById("quizExplain");
+
+    function renderQuiz() {
+      const quiz = quizBank[currentQuizIndex];
+      const selected = quizAnswers[currentQuizIndex];
+      quizCounter.textContent = `${String(currentQuizIndex + 1).padStart(2, "0")} / ${quizBank.length}`;
+      quizQuestion.textContent = quiz.question;
+      quizOptions.innerHTML = quiz.options.map((option, index) => {
+        const isAnswered = selected !== null;
+        const stateClass = !isAnswered
+          ? ""
+          : index === quiz.answer
+            ? "is-correct"
+            : index === selected
+              ? "is-wrong"
+              : "is-muted";
+        return `<button class="quiz-option ${stateClass}" type="button" data-option-index="${index}">${option}</button>`;
+      }).join("");
+      quizFeedback.textContent = selected === null
+        ? "Mời lớp chọn đáp án. Sau đó bấm “Giải thích” nếu cần chốt ý."
+        : selected === quiz.answer
+          ? `Đúng. ${quiz.explain}`
+          : `Chưa đúng. ${quiz.explain}`;
+      quizPrev.disabled = currentQuizIndex === 0;
+      quizNext.textContent = currentQuizIndex === quizBank.length - 1 ? "Làm lại" : "Tiếp";
+      quizNext.insertAdjacentHTML("beforeend", '<i data-lucide="arrow-right" aria-hidden="true"></i>');
+      updateQuizScore();
+
+      document.querySelectorAll(".quiz-option").forEach((button) => {
+        button.addEventListener("click", () => {
+          quizAnswers[currentQuizIndex] = Number(button.dataset.optionIndex);
+          renderQuiz();
+        });
+      });
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function updateQuizScore() {
+      const answered = quizAnswers.filter((answer) => answer !== null).length;
+      const correct = quizAnswers.reduce((total, answer, index) => (
+        answer === quizBank[index].answer ? total + 1 : total
+      ), 0);
+      quizScore.textContent = `Điểm lớp: ${correct}/${answered}`;
+    }
+
+    quizPrev.addEventListener("click", () => {
+      currentQuizIndex = Math.max(0, currentQuizIndex - 1);
+      renderQuiz();
+    });
+
+    quizNext.addEventListener("click", () => {
+      if (currentQuizIndex === quizBank.length - 1) {
+        currentQuizIndex = 0;
+        quizAnswers.fill(null);
+      } else {
+        currentQuizIndex += 1;
+      }
+      renderQuiz();
+    });
+
+    quizExplain.addEventListener("click", () => {
+      quizFeedback.textContent = quizBank[currentQuizIndex].explain;
+    });
+
+    renderPrinciple("relation");
+    renderQuiz();
+  </script>
   <script type="module" src="/static/avatar.js"></script>
   <script type="module" src="/static/app.js"></script>
 </body>
