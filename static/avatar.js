@@ -350,7 +350,7 @@ function fitAvatarToView() {
   const fittedSize = fittedBox.getSize(new THREE.Vector3());
   const fittedCenter = fittedBox.getCenter(new THREE.Vector3());
   const targetY = fittedBox.min.y + fittedSize.y * 0.58;
-  const distance = Math.max(2.3, fittedSize.y / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5))) * 0.86);
+  const distance = Math.max(2.3, fittedSize.y / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5))) * 1.14);
 
   avatarBaseY = avatarRoot.position.y;
   camera.position.set(0, targetY, fittedCenter.z + distance);
