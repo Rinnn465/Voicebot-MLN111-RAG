@@ -1,33 +1,16 @@
-const questionInput = document.getElementById("question");
-const askBtn = document.getElementById("askBtn");
 const recordBtn = document.getElementById("recordBtn");
 const stopBtn = document.getElementById("stopBtn");
 const clearBtn = document.getElementById("clearBtn");
-const micBtn = document.getElementById("micBtn");
 const micStatus = document.getElementById("micStatus");
-const waveform = document.getElementById("waveform");
 const statusBox = document.getElementById("status");
 const transcriptFinalBox = document.getElementById("transcriptFinal");
 const transcriptPartialBox = document.getElementById("transcriptPartial");
 const speakAnswerToggle = document.getElementById("speakAnswerToggle");
-const resultBox = document.getElementById("result");
-const answerBox = document.getElementById("answer");
-let answerAudio = document.getElementById("answerAudio");
-const suggestionButtons = document.querySelectorAll(".suggestion-btn");
 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
 
-askBtn.addEventListener("click", askQuestion);
-recordBtn.addEventListener("click", startRecording);
-stopBtn.addEventListener("click", stopRecording);
-clearBtn.addEventListener("click", clearForm);
-
+let answerAudio = document.getElementById("answerAudio");
 let isAsking = false;
 let isListening = false;
-const recognition = {
-  stop() {
-    isListening = false;
-  },
-};
 let activeStream = null;
 let liveSocket = null;
 let liveSocketReady = false;
@@ -39,73 +22,88 @@ let realtimeStopRequested = false;
 let stopFallbackTimer = null;
 let answerAudioUrl = null;
 
-function setStatus(message) {
-  statusBox.textContent = message;
+recordBtn.addEventListener("click", startRecording);
+stopBtn.addEventListener("click", stopRecording);
+clearBtn.addEventListener("click", clearConversation);
+
+if (window.lucide) {
+  window.lucide.createIcons();
 }
 
-function setBusy(isBusy) {
-  askBtn.disabled = isBusy;
-  clearBtn.disabled = isBusy;
-  suggestionButtons.forEach((button) => {
-    button.disabled = isBusy;
-  });
-}
+setAvatarState("idle");
 
-function escapeHtml(value) {
-  const div = document.createElement("div");
-  div.textContent = value;
-  return div.innerHTML;
-}
-
-function getAnswerAudio() {
-  if (answerAudio) {
-    return answerAudio;
-  }
-
-  answerAudio = document.createElement("audio");
-  answerAudio.id = "answerAudio";
-  answerAudio.controls = true;
-  answerAudio.classList.add("hidden");
-  resultBox.appendChild(answerAudio);
-  return answerAudio;
-}
-
-questionInput.addEventListener("keydown", (event) => {
-  if (event.ctrlKey && event.key === "Enter") {
-    askQuestion();
-  }
-});
-
-suggestionButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    questionInput.value = button.dataset.question || "";
-    questionInput.focus();
-    setStatus("Đã đưa gợi ý vào ô hỏi.");
-  });
-});
-
-async function askQuestion(options = {}) {
-  const question = (options.questionOverride ?? questionInput.value).trim();
-  const shouldSpeakAnswer = options.shouldSpeakAnswer ?? speakAnswerToggle.checked;
-
-  if (question.length < 2) {
-    setStatus("Hãy nhập hoặc đọc một câu hỏi hợp lệ.");
-    questionInput.focus();
+async function startRecording() {
+  if (isListening || isAsking) {
     return;
   }
 
-  if (isListening) {
-    recognition.stop();
+  if (!navigator.mediaDevices?.getUserMedia || !AudioContextClass) {
+    setStatus("Trình duyệt chưa hỗ trợ ghi âm realtime.");
+    return;
   }
 
+  try {
+    await closeLiveSocket();
+    cleanupAudioPipeline();
+    resetAnswerAudio();
+    finalTranscriptSegments = [];
+    realtimeStopRequested = false;
+    renderTranscript();
+    setListeningUi(true);
+    setAvatarState("listening");
+    setStatus("Đang kết nối realtime STT...");
+    openLiveSocket();
+  } catch (error) {
+    setStatus(`Không thể bắt đầu ghi âm: ${error.message}`);
+    cleanupAudioPipeline();
+    await closeLiveSocket();
+    setListeningUi(false);
+    setAvatarState("idle");
+  }
+}
+
+function stopRecording() {
+  if (!liveSocket && !isListening) {
+    return;
+  }
+
+  stopBtn.disabled = true;
+  realtimeStopRequested = true;
+  setStatus("Đang hoàn tất transcript...");
+  cleanupAudioPipeline();
+  sendLiveMessage({ type: "audio.commit" });
+
+  window.clearTimeout(stopFallbackTimer);
+  stopFallbackTimer = window.setTimeout(() => {
+    if (realtimeStopRequested) {
+      finishRealtimeTurn();
+    }
+  }, 1200);
+}
+
+async function finishRealtimeTurn() {
+  const transcript = finalTranscriptSegments.join(" ").trim();
+
+  setStatus(transcript ? "Đã nhận transcript." : "Không nhận diện được nội dung giọng nói.");
+  sendLiveMessage({ type: "session.stop" });
+  await closeLiveSocket();
+  setListeningUi(false);
+  realtimeStopRequested = false;
+
+  if (transcript) {
+    await askFromTranscript(transcript);
+  } else {
+    setAvatarState("idle");
+  }
+}
+
+async function askFromTranscript(question) {
   isAsking = true;
   setBusy(true);
-  setStatus("Đang truy xuất nội dung liên quan...");
-  resultBox.classList.add("hidden");
-  answerBox.innerHTML = "";
-  resetAnswerAudio();
+  setAvatarState("thinking");
+  setStatus("Đang truy xuất RAG từ transcript...");
 
-  const statusTimer = setTimeout(() => {
+  const statusTimer = window.setTimeout(() => {
     setStatus("Đang tổng hợp câu trả lời...");
   }, 900);
 
@@ -124,117 +122,33 @@ async function askQuestion(options = {}) {
       throw new Error(data.detail || "Backend trả về lỗi.");
     }
 
-    answerBox.innerHTML = window.marked
-      ? marked.parse(data.answer || "Không có câu trả lời.")
-      : escapeHtml(data.answer || "Không có câu trả lời.");
-
-    resultBox.classList.remove("hidden");
-    statusBox.textContent = "Hoàn tất.";
-
-    if (shouldSpeakAnswer && data.answer) {
+    if (speakAnswerToggle.checked && data.answer) {
+      window.voiceAvatar?.setSpeechText(data.answer);
       await speakAnswer(data.answer);
+    } else {
+      setStatus("Đã có câu trả lời. TTS đang tắt.");
+      setAvatarState("idle");
     }
   } catch (error) {
     setStatus(`Có lỗi: ${error.message}`);
+    setAvatarState("idle");
   } finally {
-    clearTimeout(statusTimer);
+    window.clearTimeout(statusTimer);
     isAsking = false;
     setBusy(false);
   }
 }
 
-function clearForm() {
+function clearConversation() {
   if (isListening) {
-    recognition.stop();
+    stopRecording();
   }
 
-  questionInput.value = "";
-  statusBox.textContent = "";
   finalTranscriptSegments = [];
   renderTranscript();
-  resultBox.classList.add("hidden");
-  answerBox.innerHTML = "";
   resetAnswerAudio();
-  questionInput.focus();
-}
-
-async function startRecording() {
-  if (!navigator.mediaDevices?.getUserMedia || !AudioContextClass) {
-    statusBox.textContent = "Trình duyệt chưa hỗ trợ ghi âm.";
-    return;
-  }
-
-  try {
-    await closeLiveSocket();
-    cleanupAudioPipeline();
-    finalTranscriptSegments = [];
-    realtimeStopRequested = false;
-    renderTranscript();
-    statusBox.textContent = "Đang kết nối realtime STT...";
-    recordBtn.disabled = true;
-    stopBtn.disabled = false;
-    openLiveSocket();
-  } catch (error) {
-    statusBox.textContent = `Không thể bắt đầu ghi âm: ${error.message}`;
-    cleanupAudioPipeline();
-    await closeLiveSocket();
-    recordBtn.disabled = false;
-    stopBtn.disabled = true;
-  }
-}
-
-function stopRecording() {
-  if (!liveSocket) {
-    return;
-  }
-
-  stopBtn.disabled = true;
-  realtimeStopRequested = true;
-  statusBox.textContent = "Đang hoàn tất transcript realtime...";
-  cleanupAudioPipeline();
-  sendLiveMessage({ type: "audio.commit" });
-  clearTimeout(stopFallbackTimer);
-  stopFallbackTimer = window.setTimeout(() => {
-    if (!realtimeStopRequested) {
-      return;
-    }
-
-    statusBox.textContent = finalTranscriptSegments.length
-      ? "Đã nhận transcript realtime."
-      : "Không nhận diện được nội dung giọng nói.";
-    sendLiveMessage({ type: "session.stop" });
-    closeLiveSocket();
-    if (finalTranscriptSegments.length) {
-      askQuestion({
-        questionOverride: finalTranscriptSegments.join(" "),
-        shouldSpeakAnswer: speakAnswerToggle.checked,
-      });
-    }
-    realtimeStopRequested = false;
-  }, 1200);
-}
-
-function cleanupAudioPipeline() {
-  if (processorNode) {
-    processorNode.disconnect();
-    processorNode.onaudioprocess = null;
-    processorNode = null;
-  }
-
-  if (sourceNode) {
-    sourceNode.disconnect();
-    sourceNode = null;
-  }
-
-  if (audioContext) {
-    audioContext.close();
-    audioContext = null;
-  }
-
-  if (activeStream) {
-    activeStream.getTracks().forEach((track) => track.stop());
-    activeStream = null;
-  }
+  setStatus("");
+  setAvatarState("idle");
 }
 
 function openLiveSocket() {
@@ -250,14 +164,18 @@ function openLiveSocket() {
   liveSocket.addEventListener("close", () => {
     liveSocket = null;
     liveSocketReady = false;
-    clearTimeout(stopFallbackTimer);
+    window.clearTimeout(stopFallbackTimer);
     cleanupAudioPipeline();
-    recordBtn.disabled = false;
-    stopBtn.disabled = true;
+    setListeningUi(false);
+
+    if (!isAsking && !isAnswerAudioPlaying()) {
+      setAvatarState("idle");
+    }
   });
 
   liveSocket.addEventListener("error", () => {
-    statusBox.textContent = "Kết nối realtime STT bị lỗi.";
+    setStatus("Kết nối realtime STT bị lỗi.");
+    setAvatarState("idle");
   });
 }
 
@@ -265,13 +183,15 @@ async function handleLiveEvent(payload) {
   const messageType = payload.type;
 
   if (messageType === "session.created") {
-    statusBox.textContent = "Đã kết nối Valsea realtime.";
+    setStatus("Đã kết nối realtime STT.");
     return;
   }
 
   if (messageType === "session.ready") {
     liveSocketReady = true;
-    statusBox.textContent = "Đang nghe realtime...";
+    setListeningUi(true);
+    setAvatarState("listening");
+    setStatus("Đang nghe...");
     await startAudioPipeline();
     return;
   }
@@ -283,35 +203,25 @@ async function handleLiveEvent(payload) {
 
   if (messageType === "transcript.final") {
     const finalText = (payload.text || "").trim();
+
     if (finalText) {
       finalTranscriptSegments.push(finalText);
-      questionInput.value = finalTranscriptSegments.join(" ");
-      questionInput.focus();
     }
+
     transcriptPartialBox.textContent = "";
     renderTranscript();
 
     if (realtimeStopRequested) {
-      clearTimeout(stopFallbackTimer);
-      statusBox.textContent = finalTranscriptSegments.length
-        ? "Đã nhận transcript realtime."
-        : "Không nhận diện được nội dung giọng nói.";
-      sendLiveMessage({ type: "session.stop" });
-      await closeLiveSocket();
-      if (finalTranscriptSegments.length) {
-        await askQuestion({
-          questionOverride: finalTranscriptSegments.join(" "),
-          shouldSpeakAnswer: speakAnswerToggle.checked,
-        });
-      }
-      realtimeStopRequested = false;
+      window.clearTimeout(stopFallbackTimer);
+      await finishRealtimeTurn();
     }
     return;
   }
 
   if (messageType === "error") {
-    statusBox.textContent = `Lỗi realtime: ${payload.message || "Không xác định"}`;
+    setStatus(`Lỗi realtime: ${payload.message || "Không xác định"}`);
     await closeLiveSocket();
+    setAvatarState("idle");
   }
 }
 
@@ -348,6 +258,167 @@ async function startAudioPipeline() {
 
   sourceNode.connect(processorNode);
   processorNode.connect(audioContext.destination);
+}
+
+function cleanupAudioPipeline() {
+  if (processorNode) {
+    processorNode.disconnect();
+    processorNode.onaudioprocess = null;
+    processorNode = null;
+  }
+
+  if (sourceNode) {
+    sourceNode.disconnect();
+    sourceNode = null;
+  }
+
+  if (audioContext) {
+    audioContext.close();
+    audioContext = null;
+  }
+
+  if (activeStream) {
+    activeStream.getTracks().forEach((track) => track.stop());
+    activeStream = null;
+  }
+}
+
+async function closeLiveSocket() {
+  if (!liveSocket) {
+    return;
+  }
+
+  if (liveSocket.readyState === WebSocket.OPEN) {
+    liveSocket.close();
+  }
+
+  liveSocket = null;
+  liveSocketReady = false;
+}
+
+async function speakAnswer(text) {
+  setAvatarState("thinking");
+  setStatus("Đang tạo giọng đọc ElevenLabs...");
+
+  const response = await fetch("/text-to-speech", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ text }),
+  });
+
+  if (!response.ok) {
+    let detail = "Không thể tạo giọng đọc.";
+
+    try {
+      const errorData = await response.json();
+      detail = errorData.detail || detail;
+    } catch (error) {
+      // Ignore invalid JSON error bodies.
+    }
+
+    throw new Error(detail);
+  }
+
+  const audioBlob = await response.blob();
+  resetAnswerAudio();
+  answerAudioUrl = URL.createObjectURL(audioBlob);
+
+  const audio = getAnswerAudio();
+  audio.src = answerAudioUrl;
+  audio.classList.remove("hidden");
+  window.voiceAvatar?.connectAudio(audio);
+
+  try {
+    await audio.play();
+    setAvatarState("speaking");
+    setStatus("Avatar đang đọc câu trả lời.");
+  } catch (error) {
+    setAvatarState("idle");
+    setStatus("Đã tạo giọng đọc. Bấm play để nghe.");
+  }
+}
+
+function getAnswerAudio() {
+  if (answerAudio) {
+    return answerAudio;
+  }
+
+  answerAudio = document.createElement("audio");
+  answerAudio.id = "answerAudio";
+  answerAudio.controls = true;
+  answerAudio.classList.add("hidden");
+  document.getElementById("audioSlot").appendChild(answerAudio);
+
+  answerAudio.addEventListener("play", () => {
+    setAvatarState("speaking");
+  });
+  answerAudio.addEventListener("ended", () => {
+    setAvatarState("idle");
+    setStatus("Hoàn tất.");
+  });
+  answerAudio.addEventListener("pause", () => {
+    if (answerAudio.ended) {
+      setAvatarState("idle");
+    }
+  });
+
+  return answerAudio;
+}
+
+function resetAnswerAudio() {
+  const audio = getAnswerAudio();
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
+  audio.classList.add("hidden");
+
+  if (answerAudioUrl) {
+    URL.revokeObjectURL(answerAudioUrl);
+    answerAudioUrl = null;
+  }
+}
+
+function setAvatarState(state) {
+  document.body.dataset.avatarState = state;
+  window.voiceAvatar?.setState(state);
+}
+
+function setListeningUi(nextIsListening) {
+  isListening = nextIsListening;
+  recordBtn.disabled = nextIsListening;
+  stopBtn.disabled = !nextIsListening;
+  recordBtn.classList.toggle("is-listening", nextIsListening);
+  micStatus.textContent = nextIsListening ? "Đang nghe..." : "Mic sẵn sàng";
+}
+
+function setBusy(isBusy) {
+  recordBtn.disabled = isBusy || isListening;
+  clearBtn.disabled = isBusy;
+}
+
+function setStatus(message) {
+  statusBox.textContent = message;
+}
+
+function renderTranscript() {
+  const combined = finalTranscriptSegments.join(" ").trim();
+  transcriptFinalBox.textContent = combined || "Chưa có transcript.";
+  transcriptPartialBox.textContent = "";
+}
+
+function sendLiveMessage(payload) {
+  if (!liveSocket || liveSocket.readyState !== WebSocket.OPEN) {
+    return;
+  }
+
+  liveSocket.send(JSON.stringify(payload));
+}
+
+function isAnswerAudioPlaying() {
+  const audio = getAnswerAudio();
+  return !audio.paused && !audio.ended;
 }
 
 function convertFloat32ToPCM16(float32Array, inputSampleRate, outputSampleRate) {
@@ -400,83 +471,4 @@ function arrayBufferToBase64(buffer) {
   }
 
   return window.btoa(binary);
-}
-
-function renderTranscript() {
-  const combined = finalTranscriptSegments.join(" ").trim();
-  transcriptFinalBox.textContent = combined || "Chưa có transcript.";
-  transcriptPartialBox.textContent = "";
-}
-
-function sendLiveMessage(payload) {
-  if (!liveSocket || liveSocket.readyState !== WebSocket.OPEN) {
-    return;
-  }
-
-  liveSocket.send(JSON.stringify(payload));
-}
-
-async function closeLiveSocket() {
-  if (!liveSocket) {
-    return;
-  }
-
-  if (liveSocket.readyState === WebSocket.OPEN) {
-    liveSocket.close();
-  }
-
-  liveSocket = null;
-  liveSocketReady = false;
-}
-
-async function speakAnswer(text) {
-  statusBox.textContent = "Đang tạo giọng đọc câu trả lời...";
-
-  const response = await fetch("/text-to-speech", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ text }),
-  });
-
-  if (!response.ok) {
-    let detail = "Không thể tạo giọng đọc.";
-
-    try {
-      const errorData = await response.json();
-      detail = errorData.detail || detail;
-    } catch (error) {
-      // ignore
-    }
-
-    throw new Error(detail);
-  }
-
-  const audioBlob = await response.blob();
-  resetAnswerAudio();
-  answerAudioUrl = URL.createObjectURL(audioBlob);
-  const audio = getAnswerAudio();
-  audio.src = answerAudioUrl;
-  audio.classList.remove("hidden");
-
-  try {
-    await audio.play();
-    statusBox.textContent = "Hoàn tất và đang phát câu trả lời.";
-  } catch (error) {
-    statusBox.textContent = "Hoàn tất. Nhấn play để nghe câu trả lời.";
-  }
-}
-
-function resetAnswerAudio() {
-  const audio = getAnswerAudio();
-  audio.pause();
-  audio.removeAttribute("src");
-  audio.load();
-  audio.classList.add("hidden");
-
-  if (answerAudioUrl) {
-    URL.revokeObjectURL(answerAudioUrl);
-    answerAudioUrl = null;
-  }
 }
