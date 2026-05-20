@@ -91,7 +91,7 @@ function getAnswerAudio() {
 
   answerAudio = document.createElement("audio");
   answerAudio.id = "answerAudio";
-  answerAudio.controls = true;
+  answerAudio.controls = false;
   answerAudio.classList.add("hidden");
   resultBox.appendChild(answerAudio);
   return answerAudio;
@@ -470,7 +470,8 @@ async function speakAnswer(text) {
   const audio = getAnswerAudio();
   audio.src = answerAudioUrl;
   audio.onended = () => setVisualState("idle", "Hoàn tất phát câu trả lời.");
-  audio.classList.remove("hidden");
+  audio.controls = false;
+  audio.classList.add("hidden");
   window.voiceAvatar?.connectAudio(audio);
 
   try {
