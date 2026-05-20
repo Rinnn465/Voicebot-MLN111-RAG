@@ -5,14 +5,17 @@ const statusBox = document.getElementById("status");
 const transcriptFinalBox = document.getElementById("transcriptFinal");
 const transcriptPartialBox = document.getElementById("transcriptPartial");
 const resultBox = document.getElementById("result");
-const answerBox = document.getElementById("answer");
+const answerLiveBox = document.getElementById("answerLive");
 const stateIcon = document.getElementById("stateIcon");
 const stateLabel = document.getElementById("stateLabel");
+const voiceHintBtn = document.getElementById("voiceHintBtn");
+const voiceHintPanel = document.getElementById("voiceHintPanel");
 let answerAudio = document.getElementById("answerAudio");
 
 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
 
 micBtn.addEventListener("click", toggleMic);
+voiceHintBtn.addEventListener("click", toggleVoiceHints);
 questionInput.addEventListener("keydown", (event) => {
   if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
     askQuestion({ shouldSpeakAnswer: true });
@@ -32,6 +35,7 @@ let realtimeStopRequested = false;
 let stopFallbackTimer = null;
 let answerAudioUrl = null;
 let submitAfterStopStarted = false;
+let liveTextTimer = null;
 
 const stateConfig = {
   idle: { label: "Idle", icon: "sparkles", message: "Nhấn mic để bắt đầu nói." },
@@ -78,10 +82,57 @@ function setBusy(isBusy) {
   questionInput.disabled = isBusy;
 }
 
-function escapeHtml(value) {
-  const div = document.createElement("div");
-  div.textContent = value;
-  return div.innerHTML;
+function toggleVoiceHints() {
+  const willOpen = voiceHintPanel.hidden;
+  voiceHintPanel.hidden = !willOpen;
+  voiceHintBtn.setAttribute("aria-expanded", String(willOpen));
+}
+
+function normalizeAnswerText(text = "") {
+  return text
+    .replace(/[#*_`>~-]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function keepAnswerLiveTextInView() {
+  answerLiveBox.scrollTop = answerLiveBox.scrollHeight;
+}
+
+function startAnswerLiveText(text, durationSeconds = 0) {
+  clearInterval(liveTextTimer);
+  const normalized = normalizeAnswerText(text);
+
+  if (!normalized) {
+    return;
+  }
+
+  answerLiveBox.textContent = "";
+  answerLiveBox.classList.remove("hidden");
+  keepAnswerLiveTextInView();
+  const intervalMs = durationSeconds > 0
+    ? Math.max(18, Math.min(70, (durationSeconds * 1000) / normalized.length))
+    : 32;
+  let index = 0;
+
+  liveTextTimer = window.setInterval(() => {
+    index = Math.min(normalized.length, index + 1);
+    answerLiveBox.textContent = normalized.slice(0, index);
+    keepAnswerLiveTextInView();
+
+    if (index >= normalized.length) {
+      clearInterval(liveTextTimer);
+      liveTextTimer = null;
+    }
+  }, intervalMs);
+}
+
+function finishAnswerLiveText(text) {
+  clearInterval(liveTextTimer);
+  liveTextTimer = null;
+  answerLiveBox.textContent = normalizeAnswerText(text);
+  answerLiveBox.classList.remove("hidden");
+  keepAnswerLiveTextInView();
 }
 
 function getAnswerAudio() {
@@ -124,7 +175,8 @@ async function askQuestion(options = {}) {
   setBusy(true);
   setVisualState("thinking");
   resultBox.classList.add("hidden");
-  answerBox.innerHTML = "";
+  answerLiveBox.textContent = "";
+  answerLiveBox.classList.add("hidden");
   resetAnswerAudio();
 
   try {
@@ -140,14 +192,12 @@ async function askQuestion(options = {}) {
       throw new Error(data.detail || "Backend trả về lỗi.");
     }
 
-    answerBox.innerHTML = window.marked
-      ? marked.parse(data.answer || "Không có câu trả lời.")
-      : escapeHtml(data.answer || "Không có câu trả lời.");
     resultBox.classList.remove("hidden");
 
     if (shouldSpeakAnswer && data.answer) {
       await speakAnswer(data.answer);
     } else {
+      finishAnswerLiveText(data.answer || "Không có câu trả lời.");
       setVisualState("idle", "Hoàn tất.");
     }
   } catch (error) {
@@ -469,13 +519,17 @@ async function speakAnswer(text) {
   answerAudioUrl = URL.createObjectURL(audioBlob);
   const audio = getAnswerAudio();
   audio.src = answerAudioUrl;
-  audio.onended = () => setVisualState("idle", "Hoàn tất phát câu trả lời.");
+  audio.onended = () => {
+    finishAnswerLiveText(text);
+    setVisualState("idle", "Hoàn tất phát câu trả lời.");
+  };
   audio.controls = false;
   audio.classList.add("hidden");
   window.voiceAvatar?.connectAudio(audio);
 
   try {
     await audio.play();
+    startAnswerLiveText(text, audio.duration);
     setVisualState("speaking");
   } catch (error) {
     setVisualState("speaking", "Trình duyệt chặn autoplay. Nhấn play để nghe câu trả lời.");
@@ -485,10 +539,14 @@ async function speakAnswer(text) {
 
 function resetAnswerAudio() {
   const audio = getAnswerAudio();
+  clearInterval(liveTextTimer);
+  liveTextTimer = null;
   audio.pause();
   audio.removeAttribute("src");
   audio.load();
   audio.classList.add("hidden");
+  answerLiveBox.textContent = "";
+  answerLiveBox.classList.add("hidden");
 
   if (answerAudioUrl) {
     URL.revokeObjectURL(answerAudioUrl);

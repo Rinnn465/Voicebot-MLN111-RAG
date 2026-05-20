@@ -64,7 +64,8 @@
       overflow: hidden;
       color: var(--night-text);
       background:
-        linear-gradient(135deg, #030712 0%, #07111f 46%, #020617 100%);
+        linear-gradient(180deg, rgba(2, 6, 23, 0.1), rgba(2, 6, 23, 0.38) 58%, rgba(2, 6, 23, 0.62)),
+        url("/static/background/tracen_gate.jpg") center / cover no-repeat;
     }
 
     button, input {
@@ -192,11 +193,11 @@
     }
 
     h1 {
-      max-width: 10ch;
+      max-width: 11.5ch;
       margin-bottom: 18px;
       font-family: "Literata", Georgia, serif;
-      font-size: clamp(42px, 6vw, 76px);
-      line-height: 0.95;
+      font-size: clamp(38px, 5.4vw, 68px);
+      line-height: 1.08;
       letter-spacing: 0;
     }
 
@@ -482,8 +483,21 @@
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 14px;
+      color: inherit;
       background: rgba(255, 255, 255, 0.62);
+      cursor: pointer;
+      text-align: left;
       transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .step-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(217, 119, 6, 0.58);
+    }
+
+    .step-card:focus-visible {
+      outline: 3px solid rgba(217, 119, 6, 0.26);
+      outline-offset: 3px;
     }
 
     .step-card.is-active {
@@ -504,13 +518,7 @@
       line-height: 1.5;
     }
 
-    .phase-slider {
-      width: 100%;
-      accent-color: var(--gold);
-    }
-
     .phase-output {
-      margin-top: 14px;
       border-left: 4px solid var(--gold);
       padding: 13px 14px;
       background: rgba(217, 119, 6, 0.1);
@@ -586,8 +594,12 @@
       background: rgba(194, 65, 12, 0.12);
     }
 
-    .quiz-option.is-muted {
-      opacity: 0.54;
+    .quiz-option:disabled {
+      cursor: default;
+    }
+
+    .quiz-option:disabled:not(.is-correct) {
+      opacity: 0.56;
     }
 
     .quiz-feedback {
@@ -638,19 +650,15 @@
       opacity: 0.45;
     }
 
-    .quiz-score {
-      color: var(--teal);
-      font-size: 13px;
-      font-weight: 900;
-    }
-
     .avatar-panel {
       color: var(--night-text);
       background:
         linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px),
-        linear-gradient(135deg, #030712 0%, #07111f 46%, #020617 100%);
-      background-size: 48px 48px, 48px 48px, auto;
+        linear-gradient(180deg, rgba(2, 6, 23, 0.08), rgba(2, 6, 23, 0.3) 45%, rgba(2, 6, 23, 0.66)),
+        url("/static/background/tracen_gate.jpg");
+      background-position: center, center, center, center;
+      background-size: 48px 48px, 48px 48px, cover, cover;
     }
 
     .app-shell {
@@ -661,6 +669,9 @@
       min-height: 100vh;
       overflow: hidden;
       padding: 0;
+      background:
+        linear-gradient(180deg, rgba(2, 6, 23, 0.08), rgba(2, 6, 23, 0.32) 54%, rgba(2, 6, 23, 0.68)),
+        url("/static/background/tracen_gate.jpg") center / cover no-repeat;
     }
 
     .top-status {
@@ -693,24 +704,6 @@
       height: 100vh;
       display: grid;
       place-items: center;
-    }
-
-    .model-stage::before,
-    .model-stage::after {
-      content: "";
-      position: absolute;
-      inset: min(4vw, 48px);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 50%;
-      animation: slow-spin 28s linear infinite;
-    }
-
-    .model-stage::after {
-      inset: min(13vw, 170px);
-      border-style: dashed;
-      border-color: rgba(94, 234, 212, 0.2);
-      animation-duration: 18s;
-      animation-direction: reverse;
     }
 
     .avatar-canvas-wrap {
@@ -765,6 +758,12 @@
       align-items: center;
     }
 
+    .voice-controls {
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+    }
+
     .mic-button {
       width: 62px;
       height: 62px;
@@ -807,6 +806,36 @@
     .mic-status { color: #cbd5e1; }
     .mic-status.is-listening { color: #fecdd3; }
 
+    .hint-button {
+      width: 62px;
+      height: 62px;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 22px;
+      display: inline-grid;
+      place-items: center;
+      color: #e2e8f0;
+      background: rgba(255,255,255,0.08);
+      cursor: pointer;
+      transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .hint-button:hover {
+      transform: translateY(-2px);
+      border-color: rgba(94,234,212,0.5);
+      background: rgba(94,234,212,0.12);
+    }
+
+    .hint-button[aria-expanded="true"] {
+      color: #031016;
+      border-color: transparent;
+      background: var(--cyan);
+    }
+
+    .hint-button i {
+      width: 20px;
+      height: 20px;
+    }
+
     .transcript-text {
       min-height: 22px;
       margin: 0;
@@ -843,9 +872,72 @@
       outline: none;
     }
 
+    .transcript-input[readonly] {
+      cursor: default;
+      color: #94a3b8;
+    }
+
     .transcript-input:focus {
       border-color: rgba(94,234,212,0.5);
       box-shadow: 0 0 0 3px rgba(94,234,212,0.1);
+    }
+
+    .voice-hint-panel {
+      position: absolute;
+      right: calc(100% + 14px);
+      bottom: 14px;
+      z-index: 12;
+      width: min(380px, calc(100% - 28px));
+      display: grid;
+      gap: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      box-shadow: 0 18px 56px rgba(0, 0, 0, 0.36);
+      transform-origin: right bottom;
+      animation: hint-slide-left 180ms ease-out;
+      backdrop-filter: blur(18px);
+    }
+
+    .voice-hint-panel p {
+      margin: 0;
+      color: var(--night-muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .voice-hint-list {
+      display: grid;
+      gap: 7px;
+    }
+
+    .voice-hint-item {
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 9px 10px;
+      color: #e2e8f0;
+      background: rgba(255,255,255,0.06);
+      cursor: pointer;
+      text-align: left;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .voice-hint-item:hover {
+      border-color: rgba(94,234,212,0.44);
+      background: rgba(94,234,212,0.1);
+    }
+
+    @keyframes hint-slide-left {
+      from {
+        opacity: 0;
+        transform: translateX(18px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
     }
 
     .status-line {
@@ -857,31 +949,41 @@
     }
 
     .answer-card {
-      max-height: 24vh;
       margin-top: 10px;
-      overflow: auto;
+      overflow: hidden;
       border-top: 1px solid rgba(255,255,255,0.1);
       padding: 10px 4px 0;
     }
 
-    .answer-markdown {
-      color: #edf2f7;
-      font-size: 13px;
-      line-height: 1.65;
+    .answer-live {
+      height: 92px;
+      margin-bottom: 10px;
+      overflow-y: auto;
+      border-left: 3px solid var(--cyan);
+      padding: 8px 10px;
+      color: #f8fafc;
+      background: rgba(94, 234, 212, 0.08);
+      font-size: 14px;
+      line-height: 1.62;
+      scrollbar-width: none;
+      scroll-behavior: smooth;
     }
 
-    .answer-markdown p { margin: 0 0 0.72rem; }
-    .answer-markdown ul, .answer-markdown ol { margin: 0.55rem 0; padding-left: 1.25rem; }
+    .answer-live::-webkit-scrollbar {
+      display: none;
+    }
+
+    .answer-live::after {
+      content: none;
+    }
+
     audio,
     #answerAudio { display: none !important; }
-
-    @keyframes slow-spin { to { transform: rotate(360deg); } }
 
     @keyframes breathe {
       0%, 100% { box-shadow: 0 0 0 0 rgba(251,113,133,0.22); }
       50% { box-shadow: 0 0 0 12px rgba(251,113,133,0); }
     }
-
 
     .usage-shell {
       width: min(1280px, 100%);
@@ -1012,6 +1114,11 @@
         min-height: auto;
       }
 
+      h1 {
+        max-width: 14ch;
+        font-size: clamp(40px, 11vw, 64px);
+      }
+
       .step-track {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -1021,6 +1128,7 @@
       body[data-active-tab="avatar"] { overflow-y: auto; }
       .lesson-panel { padding-inline: 12px; }
       .tab-dock { top: 10px; }
+      h1 { font-size: clamp(36px, 12vw, 56px); }
       .principle-picker,
       .quiz-options,
       .node-grid,
@@ -1138,25 +1246,24 @@
             <span class="module-index">03</span>
           </header>
           <div class="development-board">
-            <div class="step-track">
-              <div class="step-card is-active" data-phase-card="0">
+            <div class="step-track" role="group" aria-label="Chọn giai đoạn phát triển">
+              <button class="step-card is-active" type="button" data-phase-card="0" aria-pressed="true">
                 <strong>1. Tích lũy</strong>
                 <span>Các biến đổi nhỏ xuất hiện trong lòng sự vật cũ.</span>
-              </div>
-              <div class="step-card" data-phase-card="1">
+              </button>
+              <button class="step-card" type="button" data-phase-card="1" aria-pressed="false">
                 <strong>2. Mâu thuẫn</strong>
                 <span>Cái cũ không còn phù hợp với điều kiện mới.</span>
-              </div>
-              <div class="step-card" data-phase-card="2">
+              </button>
+              <button class="step-card" type="button" data-phase-card="2" aria-pressed="false">
                 <strong>3. Bước nhảy</strong>
                 <span>Sự vật mới ra đời, phủ định cái lỗi thời.</span>
-              </div>
-              <div class="step-card" data-phase-card="3">
+              </button>
+              <button class="step-card" type="button" data-phase-card="3" aria-pressed="false">
                 <strong>4. Kế thừa</strong>
                 <span>Yếu tố tích cực được giữ lại và cải tạo.</span>
-              </div>
+              </button>
             </div>
-            <input id="phaseSlider" class="phase-slider" type="range" min="0" max="3" value="0" step="1" aria-label="Chọn giai đoạn phát triển" />
             <p id="phaseOutput" class="phase-output" aria-live="polite">
               Phát triển không phải mọi vận động, mà là vận động theo khuynh hướng đi lên từ thấp đến cao, từ kém hoàn thiện đến hoàn thiện hơn.
             </p>
@@ -1207,7 +1314,6 @@
                 <i data-lucide="arrow-right" aria-hidden="true"></i>
               </button>
             </div>
-            <span id="quizScore" class="quiz-score">Điểm lớp: 0/0</span>
           </div>
         </div>
       </article>
@@ -1315,16 +1421,29 @@
 
       <section id="voiceWidget" class="voice-widget" aria-label="Voice chat widget">
         <div class="widget-main">
-          <button
-            id="micBtn"
-            class="mic-button"
-            type="button"
-            title="Bật hoặc tắt mic"
-            aria-label="Bật mic để nói với AI"
-            aria-pressed="false"
-          >
-            <i data-lucide="mic" aria-hidden="true"></i>
-          </button>
+          <div class="voice-controls">
+            <button
+              id="micBtn"
+              class="mic-button"
+              type="button"
+              title="Bật hoặc tắt mic"
+              aria-label="Bật mic để nói với AI"
+              aria-pressed="false"
+            >
+              <i data-lucide="mic" aria-hidden="true"></i>
+            </button>
+            <button
+              id="voiceHintBtn"
+              class="hint-button"
+              type="button"
+              title="Gợi ý câu hỏi"
+              aria-label="Mở gợi ý câu hỏi về hai nguyên lý"
+              aria-controls="voiceHintPanel"
+              aria-expanded="false"
+            >
+              <i data-lucide="lightbulb" aria-hidden="true"></i>
+            </button>
+          </div>
 
           <div class="transcript-panel">
             <div class="widget-label-row">
@@ -1339,14 +1458,26 @@
               rows="2"
               placeholder="Transcript sẽ xuất hiện ở đây..."
               aria-label="Transcript hoặc câu hỏi"
+              readonly
+              aria-readonly="true"
             ></textarea>
+          </div>
+        </div>
+        <div id="voiceHintPanel" class="voice-hint-panel" hidden>
+          <p>Câu hỏi mẫu cho chủ đề thuyết trình</p>
+          <div class="voice-hint-list">
+            <div class="voice-hint-item">Hai nguyên lý của phép biện chứng duy vật gồm những nguyên lý nào?</div>
+            <div class="voice-hint-item">Vì sao mối liên hệ phổ biến và sự phát triển là hai nguyên lý cơ bản?</div>
+            <div class="voice-hint-item">Hai nguyên lý này có quan hệ với nhau như thế nào?</div>
+            <div class="voice-hint-item">Khi vận dụng hai nguyên lý này, cần tránh những cách nhìn sai lầm nào?</div>
+            <div class="voice-hint-item">Có thể liên hệ hai nguyên lý này với học tập hoặc AI như thế nào?</div>
           </div>
         </div>
 
         <div id="status" class="status-line" aria-live="polite"></div>
 
         <section id="result" class="answer-card hidden" aria-label="Câu trả lời AI">
-          <div id="answer" class="answer-markdown"></div>
+          <p id="answerLive" class="answer-live hidden" aria-live="polite"></p>
           <audio id="answerAudio" class="hidden" controls></audio>
         </section>
       </section>
@@ -1514,14 +1645,20 @@
     });
 
 
-    const phaseSlider = document.getElementById("phaseSlider");
     const phaseOutput = document.getElementById("phaseOutput");
 
-    phaseSlider.addEventListener("input", () => {
-      const phase = Number(phaseSlider.value);
+    function renderPhase(phase) {
       phaseOutput.textContent = phaseData[phase];
       document.querySelectorAll("[data-phase-card]").forEach((card) => {
-        card.classList.toggle("is-active", Number(card.dataset.phaseCard) === phase);
+        const isActive = Number(card.dataset.phaseCard) === phase;
+        card.classList.toggle("is-active", isActive);
+        card.setAttribute("aria-pressed", String(isActive));
+      });
+    }
+
+    document.querySelectorAll("[data-phase-card]").forEach((card) => {
+      card.addEventListener("click", () => {
+        renderPhase(Number(card.dataset.phaseCard));
       });
     });
 
@@ -1529,7 +1666,6 @@
     const quizOptions = document.getElementById("quizOptions");
     const quizCounter = document.getElementById("quizCounter");
     const quizFeedback = document.getElementById("quizFeedback");
-    const quizScore = document.getElementById("quizScore");
     const quizPrev = document.getElementById("quizPrev");
     const quizNext = document.getElementById("quizNext");
     const quizExplain = document.getElementById("quizExplain");
@@ -1537,6 +1673,7 @@
     function renderQuiz() {
       const quiz = quizBank[currentQuizIndex];
       const selected = quizAnswers[currentQuizIndex];
+      const isSolved = selected === quiz.answer;
       quizCounter.textContent = `${String(currentQuizIndex + 1).padStart(2, "0")} / ${quizBank.length}`;
       quizQuestion.textContent = quiz.question;
       quizOptions.innerHTML = quiz.options.map((option, index) => {
@@ -1547,18 +1684,19 @@
             ? "is-correct"
             : index === selected
               ? "is-wrong"
-              : "is-muted";
-        return `<button class="quiz-option ${stateClass}" type="button" data-option-index="${index}">${option}</button>`;
+              : "";
+        const disabled = isAnswered ? "disabled" : "";
+        return `<button class="quiz-option ${stateClass}" type="button" data-option-index="${index}" ${disabled}>${option}</button>`;
       }).join("");
       quizFeedback.textContent = selected === null
         ? "Mời lớp chọn đáp án. Sau đó bấm “Giải thích” nếu cần chốt ý."
         : selected === quiz.answer
           ? `Đúng. ${quiz.explain}`
-          : `Chưa đúng. ${quiz.explain}`;
+          : `Chưa đúng. Đáp án đúng là: ${quiz.options[quiz.answer]}. ${quiz.explain}`;
       quizPrev.disabled = currentQuizIndex === 0;
-      quizNext.textContent = currentQuizIndex === quizBank.length - 1 ? "Làm lại" : "Tiếp";
+      quizNext.disabled = currentQuizIndex === quizBank.length - 1;
+      quizNext.textContent = currentQuizIndex === quizBank.length - 1 ? "Hết câu hỏi" : "Tiếp";
       quizNext.insertAdjacentHTML("beforeend", '<i data-lucide="arrow-right" aria-hidden="true"></i>');
-      updateQuizScore();
 
       document.querySelectorAll(".quiz-option").forEach((button) => {
         button.addEventListener("click", () => {
@@ -1572,27 +1710,16 @@
       }
     }
 
-    function updateQuizScore() {
-      const answered = quizAnswers.filter((answer) => answer !== null).length;
-      const correct = quizAnswers.reduce((total, answer, index) => (
-        answer === quizBank[index].answer ? total + 1 : total
-      ), 0);
-      quizScore.textContent = `Điểm lớp: ${correct}/${answered}`;
-    }
-
     quizPrev.addEventListener("click", () => {
       currentQuizIndex = Math.max(0, currentQuizIndex - 1);
       renderQuiz();
     });
 
     quizNext.addEventListener("click", () => {
-      if (currentQuizIndex === quizBank.length - 1) {
-        currentQuizIndex = 0;
-        quizAnswers.fill(null);
-      } else {
+      if (currentQuizIndex < quizBank.length - 1) {
         currentQuizIndex += 1;
+        renderQuiz();
       }
-      renderQuiz();
     });
 
     quizExplain.addEventListener("click", () => {

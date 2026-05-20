@@ -56,6 +56,12 @@ const STATE_LABELS = {
   thinking: "Thinking",
   speaking: "Speaking",
 };
+const BLINK_INTERVAL_RANGE = [3.6, 7.8];
+const BLINK_RECOVERY_SPEED = 0.12;
+const EAR_WIGGLE_INTERVAL_RANGE = [8.5, 15];
+const EAR_WIGGLE_DURATION = 1.08;
+const EAR_WIGGLE_FREQUENCY = 13;
+const EAR_WIGGLE_AMPLITUDE = 0.09;
 
 const container = document.getElementById("avatarContainer");
 const canvas = document.getElementById("avatarCanvas");
@@ -104,7 +110,7 @@ let speechEnergy = 0;
 let speechBeat = 0;
 let emphasisPulse = 0;
 let lastBeatTime = 0;
-let nextBlinkTime = 1.8;
+let nextBlinkTime = 3.2;
 let blinkValue = 0;
 let nextLookTime = 2.4;
 let lookTarget = new THREE.Vector2(0, 0);
@@ -120,7 +126,7 @@ let gesturePhase = 0;
 let gestureTarget = 0;
 let gestureHoldUntil = 0;
 let smoothGesture = 0;
-let nextEarWiggleTime = 2.8;
+let nextEarWiggleTime = 5.6;
 let earWiggleUntil = 0;
 
 init();
@@ -137,14 +143,16 @@ function init() {
   }
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0a0d12);
+  scene.background = null;
   clock = new THREE.Clock();
 
   camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
   camera.position.set(0, 1.45, 3.2);
 
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+  renderer.setClearAlpha(0);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.74;
@@ -791,15 +799,15 @@ function updateEarWiggle(elapsed) {
   }
 
   if (elapsed > nextEarWiggleTime) {
-    earWiggleUntil = elapsed + 0.72;
-    nextEarWiggleTime = elapsed + THREE.MathUtils.randFloat(4.5, 8.5);
+    earWiggleUntil = elapsed + EAR_WIGGLE_DURATION;
+    nextEarWiggleTime = elapsed + THREE.MathUtils.randFloat(...EAR_WIGGLE_INTERVAL_RANGE);
   }
 
   const active = elapsed < earWiggleUntil;
-  const progress = active ? 1 - ((earWiggleUntil - elapsed) / 0.72) : 1;
+  const progress = active ? 1 - ((earWiggleUntil - elapsed) / EAR_WIGGLE_DURATION) : 1;
   const envelope = active ? Math.sin(progress * Math.PI) : 0;
-  const wiggle = Math.sin(elapsed * 24) * envelope * 0.16;
-  const softTilt = Math.sin(elapsed * 1.25) * 0.018;
+  const wiggle = Math.sin(elapsed * EAR_WIGGLE_FREQUENCY) * envelope * EAR_WIGGLE_AMPLITUDE;
+  const softTilt = Math.sin(elapsed * 0.9) * 0.012;
 
   leftEarBones.forEach((bone, index) => {
     const falloff = 1 - index * 0.18;
@@ -1013,9 +1021,9 @@ function updateExpressions(elapsed) {
 function updateBlinkAndLook(elapsed) {
   if (elapsed > nextBlinkTime) {
     blinkValue = 1;
-    nextBlinkTime = elapsed + THREE.MathUtils.randFloat(2.2, 5.6);
+    nextBlinkTime = elapsed + THREE.MathUtils.randFloat(...BLINK_INTERVAL_RANGE);
   } else {
-    blinkValue = Math.max(0, blinkValue - 0.18);
+    blinkValue = Math.max(0, blinkValue - BLINK_RECOVERY_SPEED);
   }
 
   if (elapsed > nextLookTime) {

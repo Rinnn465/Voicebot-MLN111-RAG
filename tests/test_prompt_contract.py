@@ -88,6 +88,8 @@ class PromptContractTest(unittest.TestCase):
         self.assertIn("Không mặc định người hỏi là MC", SYSTEM_PROMPT)
         self.assertIn('"nhóm tôi"', SYSTEM_PROMPT)
         self.assertIn('không thêm lời mời kiểu "Nếu bạn cần thì mình', SYSTEM_PROMPT)
+        self.assertIn("Có thể dùng câu xã giao ngắn để tạo cảm giác khích lệ", SYSTEM_PROMPT)
+        self.assertIn("không để câu xã giao thay thế nội dung chính", SYSTEM_PROMPT)
 
 
 if __name__ == "__main__":
