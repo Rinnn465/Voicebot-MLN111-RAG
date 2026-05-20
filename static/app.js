@@ -1,33 +1,26 @@
 const questionInput = document.getElementById("question");
-const askBtn = document.getElementById("askBtn");
-const recordBtn = document.getElementById("recordBtn");
-const stopBtn = document.getElementById("stopBtn");
-const clearBtn = document.getElementById("clearBtn");
 const micBtn = document.getElementById("micBtn");
 const micStatus = document.getElementById("micStatus");
-const waveform = document.getElementById("waveform");
 const statusBox = document.getElementById("status");
 const transcriptFinalBox = document.getElementById("transcriptFinal");
 const transcriptPartialBox = document.getElementById("transcriptPartial");
-const speakAnswerToggle = document.getElementById("speakAnswerToggle");
 const resultBox = document.getElementById("result");
 const answerBox = document.getElementById("answer");
+const stateIcon = document.getElementById("stateIcon");
+const stateLabel = document.getElementById("stateLabel");
 let answerAudio = document.getElementById("answerAudio");
-const suggestionButtons = document.querySelectorAll(".suggestion-btn");
+
 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
 
-askBtn.addEventListener("click", askQuestion);
-recordBtn.addEventListener("click", startRecording);
-stopBtn.addEventListener("click", stopRecording);
-clearBtn.addEventListener("click", clearForm);
+micBtn.addEventListener("click", toggleMic);
+questionInput.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+    askQuestion({ shouldSpeakAnswer: true });
+  }
+});
 
 let isAsking = false;
 let isListening = false;
-const recognition = {
-  stop() {
-    isListening = false;
-  },
-};
 let activeStream = null;
 let liveSocket = null;
 let liveSocketReady = false;
@@ -38,17 +31,40 @@ let finalTranscriptSegments = [];
 let realtimeStopRequested = false;
 let stopFallbackTimer = null;
 let answerAudioUrl = null;
+let submitAfterStopStarted = false;
 
-function setStatus(message) {
-  statusBox.textContent = message;
+const stateConfig = {
+  idle: { label: "Idle", icon: "sparkles", message: "Nhấn mic để bắt đầu nói." },
+  listening: { label: "Listening", icon: "radio", message: "Đang nghe... nhấn mic lần nữa để gửi." },
+  thinking: { label: "Thinking", icon: "loader-circle", message: "Đang truy xuất và tổng hợp câu trả lời..." },
+  speaking: { label: "Speaking", icon: "volume-2", message: "Đang phát câu trả lời." },
+  error: { label: "Error", icon: "triangle-alert", message: "Có lỗi xảy ra." },
+};
+
+function setVisualState(state, message) {
+  const config = stateConfig[state] || stateConfig.idle;
+  document.body.dataset.state = state;
+  stateLabel.textContent = config.label;
+  stateIcon.setAttribute("data-lucide", config.icon);
+  statusBox.textContent = message ?? config.message;
+
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
+
+function setListeningUi(listening) {
+  isListening = listening;
+  micBtn.classList.toggle("is-listening", listening);
+  micBtn.setAttribute("aria-pressed", String(listening));
+  micBtn.setAttribute("aria-label", listening ? "Tắt mic và gửi transcript" : "Bật mic để nói với AI");
+  micStatus.textContent = listening ? "Đang nghe" : "Mic sẵn sàng";
+  micStatus.classList.toggle("is-listening", listening);
 }
 
 function setBusy(isBusy) {
-  askBtn.disabled = isBusy;
-  clearBtn.disabled = isBusy;
-  suggestionButtons.forEach((button) => {
-    button.disabled = isBusy;
-  });
+  micBtn.disabled = isBusy && !isListening;
+  questionInput.disabled = isBusy;
 }
 
 function escapeHtml(value) {
@@ -70,51 +86,40 @@ function getAnswerAudio() {
   return answerAudio;
 }
 
-questionInput.addEventListener("keydown", (event) => {
-  if (event.ctrlKey && event.key === "Enter") {
-    askQuestion();
+async function toggleMic() {
+  if (isAsking) {
+    return;
   }
-});
 
-suggestionButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    questionInput.value = button.dataset.question || "";
-    questionInput.focus();
-    setStatus("Đã đưa gợi ý vào ô hỏi.");
-  });
-});
+  if (isListening || liveSocket) {
+    stopRecording();
+    return;
+  }
+
+  await startRecording();
+}
 
 async function askQuestion(options = {}) {
   const question = (options.questionOverride ?? questionInput.value).trim();
-  const shouldSpeakAnswer = options.shouldSpeakAnswer ?? speakAnswerToggle.checked;
+  const shouldSpeakAnswer = options.shouldSpeakAnswer ?? true;
 
   if (question.length < 2) {
-    setStatus("Hãy nhập hoặc đọc một câu hỏi hợp lệ.");
+    setVisualState("idle", "Không có transcript đủ dài để gửi.");
     questionInput.focus();
     return;
   }
 
-  if (isListening) {
-    recognition.stop();
-  }
-
   isAsking = true;
   setBusy(true);
-  setStatus("Đang truy xuất nội dung liên quan...");
+  setVisualState("thinking");
   resultBox.classList.add("hidden");
   answerBox.innerHTML = "";
   resetAnswerAudio();
 
-  const statusTimer = setTimeout(() => {
-    setStatus("Đang tổng hợp câu trả lời...");
-  }, 900);
-
   try {
     const response = await fetch("/ask", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question }),
     });
 
@@ -127,40 +132,24 @@ async function askQuestion(options = {}) {
     answerBox.innerHTML = window.marked
       ? marked.parse(data.answer || "Không có câu trả lời.")
       : escapeHtml(data.answer || "Không có câu trả lời.");
-
     resultBox.classList.remove("hidden");
-    statusBox.textContent = "Hoàn tất.";
 
     if (shouldSpeakAnswer && data.answer) {
       await speakAnswer(data.answer);
+    } else {
+      setVisualState("idle", "Hoàn tất.");
     }
   } catch (error) {
-    setStatus(`Có lỗi: ${error.message}`);
+    setVisualState("error", `Có lỗi: ${error.message}`);
   } finally {
-    clearTimeout(statusTimer);
     isAsking = false;
     setBusy(false);
   }
 }
 
-function clearForm() {
-  if (isListening) {
-    recognition.stop();
-  }
-
-  questionInput.value = "";
-  statusBox.textContent = "";
-  finalTranscriptSegments = [];
-  renderTranscript();
-  resultBox.classList.add("hidden");
-  answerBox.innerHTML = "";
-  resetAnswerAudio();
-  questionInput.focus();
-}
-
 async function startRecording() {
   if (!navigator.mediaDevices?.getUserMedia || !AudioContextClass) {
-    statusBox.textContent = "Trình duyệt chưa hỗ trợ ghi âm.";
+    setVisualState("error", "Trình duyệt chưa hỗ trợ ghi âm.");
     return;
   }
 
@@ -169,49 +158,68 @@ async function startRecording() {
     cleanupAudioPipeline();
     finalTranscriptSegments = [];
     realtimeStopRequested = false;
+    submitAfterStopStarted = false;
+    questionInput.value = "";
     renderTranscript();
-    statusBox.textContent = "Đang kết nối realtime STT...";
-    recordBtn.disabled = true;
-    stopBtn.disabled = false;
+    resetAnswerAudio();
+    resultBox.classList.add("hidden");
+    setListeningUi(true);
+    setVisualState("listening", "Đang kết nối realtime STT...");
     openLiveSocket();
   } catch (error) {
-    statusBox.textContent = `Không thể bắt đầu ghi âm: ${error.message}`;
+    setVisualState("error", `Không thể bắt đầu ghi âm: ${error.message}`);
     cleanupAudioPipeline();
     await closeLiveSocket();
-    recordBtn.disabled = false;
-    stopBtn.disabled = true;
+    setListeningUi(false);
   }
 }
 
 function stopRecording() {
   if (!liveSocket) {
+    setListeningUi(false);
+    submitTranscriptAfterStop();
     return;
   }
 
-  stopBtn.disabled = true;
   realtimeStopRequested = true;
-  statusBox.textContent = "Đang hoàn tất transcript realtime...";
+  setListeningUi(false);
+  setVisualState("thinking", "Đang hoàn tất transcript và gửi tới AI...");
   cleanupAudioPipeline();
   sendLiveMessage({ type: "audio.commit" });
   clearTimeout(stopFallbackTimer);
-  stopFallbackTimer = window.setTimeout(() => {
+  stopFallbackTimer = window.setTimeout(async () => {
     if (!realtimeStopRequested) {
       return;
     }
 
-    statusBox.textContent = finalTranscriptSegments.length
-      ? "Đã nhận transcript realtime."
-      : "Không nhận diện được nội dung giọng nói.";
     sendLiveMessage({ type: "session.stop" });
-    closeLiveSocket();
-    if (finalTranscriptSegments.length) {
-      askQuestion({
-        questionOverride: finalTranscriptSegments.join(" "),
-        shouldSpeakAnswer: speakAnswerToggle.checked,
-      });
-    }
-    realtimeStopRequested = false;
+    await closeLiveSocket();
+    await submitTranscriptAfterStop();
   }, 1200);
+}
+
+async function submitTranscriptAfterStop() {
+  if (submitAfterStopStarted) {
+    return;
+  }
+
+  submitAfterStopStarted = true;
+  realtimeStopRequested = false;
+  const transcript = (finalTranscriptSegments.join(" ") || questionInput.value).trim();
+  questionInput.value = transcript;
+  renderTranscript();
+
+  if (!transcript) {
+    submitAfterStopStarted = false;
+    setVisualState("idle", "Không nhận diện được nội dung giọng nói.");
+    return;
+  }
+
+  await askQuestion({
+    questionOverride: transcript,
+    shouldSpeakAnswer: true,
+  });
+  submitAfterStopStarted = false;
 }
 
 function cleanupAudioPipeline() {
@@ -250,14 +258,13 @@ function openLiveSocket() {
   liveSocket.addEventListener("close", () => {
     liveSocket = null;
     liveSocketReady = false;
-    clearTimeout(stopFallbackTimer);
     cleanupAudioPipeline();
-    recordBtn.disabled = false;
-    stopBtn.disabled = true;
+    setListeningUi(false);
   });
 
   liveSocket.addEventListener("error", () => {
-    statusBox.textContent = "Kết nối realtime STT bị lỗi.";
+    setVisualState("error", "Kết nối realtime STT bị lỗi.");
+    setListeningUi(false);
   });
 }
 
@@ -265,13 +272,13 @@ async function handleLiveEvent(payload) {
   const messageType = payload.type;
 
   if (messageType === "session.created") {
-    statusBox.textContent = "Đã kết nối Valsea realtime.";
+    setVisualState("listening", "Đã kết nối realtime STT...");
     return;
   }
 
   if (messageType === "session.ready") {
     liveSocketReady = true;
-    statusBox.textContent = "Đang nghe realtime...";
+    setVisualState("listening");
     await startAudioPipeline();
     return;
   }
@@ -286,31 +293,21 @@ async function handleLiveEvent(payload) {
     if (finalText) {
       finalTranscriptSegments.push(finalText);
       questionInput.value = finalTranscriptSegments.join(" ");
-      questionInput.focus();
     }
     transcriptPartialBox.textContent = "";
     renderTranscript();
 
     if (realtimeStopRequested) {
       clearTimeout(stopFallbackTimer);
-      statusBox.textContent = finalTranscriptSegments.length
-        ? "Đã nhận transcript realtime."
-        : "Không nhận diện được nội dung giọng nói.";
       sendLiveMessage({ type: "session.stop" });
       await closeLiveSocket();
-      if (finalTranscriptSegments.length) {
-        await askQuestion({
-          questionOverride: finalTranscriptSegments.join(" "),
-          shouldSpeakAnswer: speakAnswerToggle.checked,
-        });
-      }
-      realtimeStopRequested = false;
+      await submitTranscriptAfterStop();
     }
     return;
   }
 
   if (messageType === "error") {
-    statusBox.textContent = `Lỗi realtime: ${payload.message || "Không xác định"}`;
+    setVisualState("error", `Lỗi realtime: ${payload.message || "Không xác định"}`);
     await closeLiveSocket();
   }
 }
@@ -403,9 +400,8 @@ function arrayBufferToBase64(buffer) {
 }
 
 function renderTranscript() {
-  const combined = finalTranscriptSegments.join(" ").trim();
-  transcriptFinalBox.textContent = combined || "Chưa có transcript.";
-  transcriptPartialBox.textContent = "";
+  const combined = (finalTranscriptSegments.join(" ") || questionInput.value).trim();
+  transcriptFinalBox.textContent = combined || "Nhấn mic để nói. Tắt mic sẽ tự gửi câu hỏi và phát câu trả lời.";
 }
 
 function sendLiveMessage(payload) {
@@ -430,13 +426,11 @@ async function closeLiveSocket() {
 }
 
 async function speakAnswer(text) {
-  statusBox.textContent = "Đang tạo giọng đọc câu trả lời...";
+  setVisualState("speaking", "Đang tạo giọng đọc câu trả lời...");
 
   const response = await fetch("/text-to-speech", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text }),
   });
 
@@ -447,7 +441,7 @@ async function speakAnswer(text) {
       const errorData = await response.json();
       detail = errorData.detail || detail;
     } catch (error) {
-      // ignore
+      // Keep the default error.
     }
 
     throw new Error(detail);
@@ -458,13 +452,14 @@ async function speakAnswer(text) {
   answerAudioUrl = URL.createObjectURL(audioBlob);
   const audio = getAnswerAudio();
   audio.src = answerAudioUrl;
+  audio.onended = () => setVisualState("idle", "Hoàn tất phát câu trả lời.");
   audio.classList.remove("hidden");
 
   try {
     await audio.play();
-    statusBox.textContent = "Hoàn tất và đang phát câu trả lời.";
+    setVisualState("speaking");
   } catch (error) {
-    statusBox.textContent = "Hoàn tất. Nhấn play để nghe câu trả lời.";
+    setVisualState("speaking", "Trình duyệt chặn autoplay. Nhấn play để nghe câu trả lời.");
   }
 }
 
@@ -480,3 +475,9 @@ function resetAnswerAudio() {
     answerAudioUrl = null;
   }
 }
+
+if (window.lucide) {
+  lucide.createIcons();
+}
+setVisualState("idle");
+

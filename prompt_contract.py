@@ -1,6 +1,6 @@
 import re
 FIRST_RESPONSE_INTRO = (
-    "Hiện tại tôi đang là Voicebot được làm ra bởi nhóm 1 cho môn Triết học Mác - Lênin, "
+    "Hiện tại tôi đang là Voicebot được làm ra bởi nhóm 1 - cho môn Triết học Mác Lênin, "
     "dành cho chủ đề Phép biện chứng duy vật, rất hân hạnh được gặp thầy và các bạn."
 )
 
