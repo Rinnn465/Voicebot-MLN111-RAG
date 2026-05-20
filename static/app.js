@@ -41,16 +41,27 @@ const stateConfig = {
   error: { label: "Error", icon: "triangle-alert", message: "Có lỗi xảy ra." },
 };
 
+function setAvatarState(state) {
+  document.body.dataset.avatarState = state;
+  window.voiceAvatar?.setState(state);
+}
+
 function setVisualState(state, message) {
   const config = stateConfig[state] || stateConfig.idle;
   document.body.dataset.state = state;
   stateLabel.textContent = config.label;
   stateIcon.setAttribute("data-lucide", config.icon);
   statusBox.textContent = message ?? config.message;
+  setAvatarState(state);
 
   if (window.lucide) {
     lucide.createIcons();
   }
+}
+
+function isAnswerAudioPlaying() {
+  const audio = getAnswerAudio();
+  return Boolean(audio.src) && !audio.paused && !audio.ended;
 }
 
 function setListeningUi(listening) {
@@ -260,6 +271,10 @@ function openLiveSocket() {
     liveSocketReady = false;
     cleanupAudioPipeline();
     setListeningUi(false);
+
+    if (!isAsking && !isAnswerAudioPlaying()) {
+      setAvatarState("idle");
+    }
   });
 
   liveSocket.addEventListener("error", () => {
@@ -309,6 +324,7 @@ async function handleLiveEvent(payload) {
   if (messageType === "error") {
     setVisualState("error", `Lỗi realtime: ${payload.message || "Không xác định"}`);
     await closeLiveSocket();
+    setAvatarState("idle");
   }
 }
 
@@ -427,6 +443,7 @@ async function closeLiveSocket() {
 
 async function speakAnswer(text) {
   setVisualState("speaking", "Đang tạo giọng đọc câu trả lời...");
+  window.voiceAvatar?.setSpeechText(text);
 
   const response = await fetch("/text-to-speech", {
     method: "POST",
@@ -454,12 +471,14 @@ async function speakAnswer(text) {
   audio.src = answerAudioUrl;
   audio.onended = () => setVisualState("idle", "Hoàn tất phát câu trả lời.");
   audio.classList.remove("hidden");
+  window.voiceAvatar?.connectAudio(audio);
 
   try {
     await audio.play();
     setVisualState("speaking");
   } catch (error) {
     setVisualState("speaking", "Trình duyệt chặn autoplay. Nhấn play để nghe câu trả lời.");
+    setAvatarState("idle");
   }
 }
 
