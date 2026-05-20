@@ -18,10 +18,11 @@ const ANIMATION_CONFIG = {
     fadeOutTo: "idle",
   },
   idle: {
-    url: "/static/animations/001_motion_pose.vrma",
-    trimStart: 0.1,
-    trimEnd: 0.35,
-    timeScale: 0.2,
+    url: "/static/animations/VRMA_06.vrma",
+    trimStart: 2.15,
+    trimEnd: 2.28,
+    timeScale: 0.08,
+    loop: THREE.LoopOnce,
   },
   listening: {
     url: "/static/animations/VRMA_01.vrma",
@@ -817,6 +818,7 @@ function updateAnimatedStateOverlay(elapsed) {
   const thinking = currentState === "thinking";
   const listening = currentState === "listening";
   const speechMotion = speaking ? speechEnergy * speechProfile.energy : 0;
+  const allowHeadOverlay = speaking || listening;
 
   avatarRoot.position.y = avatarBaseY + Math.sin(elapsed * 1.9) * 0.006;
 
@@ -829,11 +831,11 @@ function updateAnimatedStateOverlay(elapsed) {
         : baseTimeScale;
   }
 
-  if (neckBone) {
+  if (neckBone && allowHeadOverlay) {
     neckBone.rotation.x += thinking ? -0.035 : -speechMotion * 0.018;
   }
 
-  if (headBone) {
+  if (headBone && allowHeadOverlay) {
     const nod = speaking ? Math.sin(elapsed * 6.4 * speechProfile.gestureRate) * speechEnergy * 0.035 : 0;
     headBone.rotation.x += -nod + currentLook.y;
     headBone.rotation.y += (listening ? Math.sin(elapsed * 1.8) * 0.06 : 0) + currentLook.x;
