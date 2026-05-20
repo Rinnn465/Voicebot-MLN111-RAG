@@ -8,32 +8,20 @@ from openai import OpenAI
 
 from Qwen_embeddings import Qwen3Embedding4B
 
+from prompt_contract import (
+    SYSTEM_PROMPT,
+    build_user_prompt,
+    ensure_first_response_intro,
+    sanitize_tts_text,
+)
+
 load_dotenv()
-
-SYSTEM_PROMPT = """Bạn là voicebot tiếng Việt cho một buổi demo môn Triết học Mác-Lênin.
-Bạn nói như một người đang trò chuyện trực tiếp, không như đang đọc giáo trình.
-
-Phong cách bắt buộc:
-- Không dùng Markdown.
-- Không dùng gạch đầu dòng.
-- Không đặt tiêu đề như "Lập luận mở rộng" hay "Nói ngắn gọn hơn".
-- Không in đậm, không đánh số ý.
-- Trả lời bằng 2 đến 5 câu ngắn, tự nhiên, dễ nghe khi chuyển thành giọng nói.
-- Luôn kết thúc bằng một câu hoàn chỉnh; nếu câu trả lời có nguy cơ dài, hãy rút gọn thay vì dừng giữa câu.
-- Ưu tiên câu nói đời thường, ví dụ: "Hiểu đơn giản là...", "Mình sẽ nói thế này...", "Điểm đáng tranh luận là...".
-
-Về nội dung:
-- Nếu tài liệu truy xuất có thông tin liên quan, hãy dùng nó làm nền.
-- Không cần luôn nói "theo tài liệu"; chỉ nói khi thật sự cần phân biệt nguồn.
-- Được phép dùng kiến thức nền, ví dụ và lập luận logic để mở rộng cho debate.
-- Nếu người dùng hỏi theo kiểu tranh luận, hãy đưa một lập trường rõ, rồi phản biện ngắn gọn phía còn lại.
-- Nếu người dùng chỉ hỏi định nghĩa, hãy giải thích mềm, ngắn và dễ hiểu, không biến thành bài giảng.
-"""
 
 
 class RAGPipeline:
     def __init__(self, persist_dir: str = "chroma_db", top_k: int = 4):
         self.top_k = top_k
+        self._has_introduced = False
 
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
@@ -82,14 +70,7 @@ class RAGPipeline:
 
         context = "\n\n".join(context_parts)
 
-        user_prompt = f"""Câu hỏi của người dùng:
-{question}
-
-Ngữ cảnh tài liệu có thể tham khảo:
-{context}
-
-Hãy trả lời như đang nói chuyện trong một voicebot demo. Viết thành một đoạn hội thoại ngắn, không Markdown, không bullet, không tiêu đề. Nếu câu hỏi không yêu cầu tranh luận, đừng tự thêm phần tranh luận riêng. Nếu cần giải thích khái niệm, hãy nói dễ hiểu bằng ví dụ gần gũi. Kết thúc bằng câu hoàn chỉnh, không dừng giữa ý.
-"""
+        user_prompt = build_user_prompt(context, question)
 
         generation_start = time.perf_counter()
 
@@ -126,8 +107,14 @@ Hãy trả lời như đang nói chuyện trong một voicebot demo. Viết thà
                 f"total={total_tokens}"
             )
 
+        answer_text = sanitize_tts_text(answer_text)
         if not answer_text:
             answer_text = "Mình chưa tạo được câu trả lời phù hợp lúc này."
+
+        answer_text, self._has_introduced = ensure_first_response_intro(
+            answer_text,
+            self._has_introduced,
+        )
 
         total_end = time.perf_counter()
 
