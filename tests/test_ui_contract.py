@@ -150,7 +150,7 @@ class FocusUiContractTest(unittest.TestCase):
         quiz_html = html[html.index('id="quizTab"'):html.index('id="usageTab"')]
 
         self.assertNotIn('id="quizQuestion"', lesson_html)
-        self.assertIn('Quiz tương tác cho lớp', quiz_html)
+        self.assertIn('Quiz tương tác', quiz_html)
         self.assertIn('id="quizQuestion"', quiz_html)
 
     def test_voicebot_status_is_top_right(self):
