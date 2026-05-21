@@ -312,13 +312,13 @@
       font-weight: 900;
     }
 
-    .outline-slide[data-stage="5"] .outline-title-original,
-    .outline-slide[data-stage="6"] .outline-title-original {
+    .outline-slide[data-stage="6"] .outline-title-original,
+    .outline-slide[data-stage="7"] .outline-title-original {
       display: none;
     }
 
-    .outline-slide[data-stage="5"] .outline-title-focus,
-    .outline-slide[data-stage="6"] .outline-title-focus {
+    .outline-slide[data-stage="6"] .outline-title-focus,
+    .outline-slide[data-stage="7"] .outline-title-focus {
       display: block;
     }
 
@@ -344,7 +344,9 @@
     .outline-slide[data-stage="5"] .outline-line--two,
     .outline-slide[data-stage="5"] .outline-dropdown,
     .outline-slide[data-stage="6"] .outline-line--two,
-    .outline-slide[data-stage="6"] .outline-dropdown {
+    .outline-slide[data-stage="6"] .outline-dropdown,
+    .outline-slide[data-stage="7"] .outline-line--two,
+    .outline-slide[data-stage="7"] .outline-dropdown {
       opacity: 1;
       transform: translateY(0);
     }
@@ -357,7 +359,8 @@
 
     .outline-slide[data-stage="4"] .outline-stack,
     .outline-slide[data-stage="5"] .outline-stack,
-    .outline-slide[data-stage="6"] .outline-stack {
+    .outline-slide[data-stage="6"] .outline-stack,
+    .outline-slide[data-stage="7"] .outline-stack {
       transform: translateY(-128px);
     }
 
@@ -366,18 +369,21 @@
     .outline-slide[data-stage="5"] .outline-heading,
     .outline-slide[data-stage="5"] .outline-line--one,
     .outline-slide[data-stage="6"] .outline-heading,
-    .outline-slide[data-stage="6"] .outline-line--one {
+    .outline-slide[data-stage="6"] .outline-line--one,
+    .outline-slide[data-stage="7"] .outline-heading,
+    .outline-slide[data-stage="7"] .outline-line--one {
       opacity: 0;
       transform: translateY(-18px);
       pointer-events: none;
     }
 
-    .outline-slide[data-stage="4"] .outline-line--two {
+    .outline-slide[data-stage="4"] .outline-line--two,
+    .outline-slide[data-stage="5"] .outline-line--two {
       transform: translateY(-20px);
     }
 
-    .outline-slide[data-stage="5"] .outline-line--two,
-    .outline-slide[data-stage="6"] .outline-line--two {
+    .outline-slide[data-stage="6"] .outline-line--two,
+    .outline-slide[data-stage="7"] .outline-line--two {
       opacity: 1;
       transform: translateY(-20px) scale(1.04);
       pointer-events: auto;
@@ -427,14 +433,24 @@
     .outline-slide[data-stage="4"] .outline-branch,
     .outline-slide[data-stage="5"] .outline-branch,
     .outline-slide[data-stage="6"] .outline-branch,
-    .outline-slide[data-stage="5"] .outline-subitems,
-    .outline-slide[data-stage="6"] .outline-subitems {
+    .outline-slide[data-stage="7"] .outline-branch,
+    .outline-slide[data-stage="6"] .outline-subitems,
+    .outline-slide[data-stage="7"] .outline-subitems {
       opacity: 1;
       transform: translateY(0);
     }
 
-    .outline-slide[data-stage="5"] .outline-branch,
-    .outline-slide[data-stage="6"] .outline-branch {
+    .outline-slide[data-stage="5"] .outline-branch--one {
+      border-color: rgba(15, 118, 110, 0.55);
+      color: var(--ink);
+      background: rgba(15, 118, 110, 0.12);
+      box-shadow: 0 24px 60px rgba(15, 118, 110, 0.2);
+      font-weight: 900;
+      transform: scale(1.04);
+    }
+
+    .outline-slide[data-stage="6"] .outline-branch,
+    .outline-slide[data-stage="7"] .outline-branch {
       opacity: 0;
       max-height: 0;
       padding-top: 0;
@@ -446,13 +462,13 @@
       overflow: hidden;
     }
 
-    .outline-slide[data-stage="5"] .outline-subitems,
-    .outline-slide[data-stage="6"] .outline-subitems {
+    .outline-slide[data-stage="6"] .outline-subitems,
+    .outline-slide[data-stage="7"] .outline-subitems {
       margin-left: 0;
       transform: translateY(-18px);
     }
 
-    .outline-slide[data-stage="6"] .outline-subitem--principles {
+    .outline-slide[data-stage="7"] .outline-subitem--principles {
       border-color: rgba(15, 118, 110, 0.55);
       color: var(--ink);
       background: rgba(15, 118, 110, 0.12);
@@ -2088,11 +2104,11 @@
       { slide: 0, stage: 0 },
       { slide: 1, stage: 0 },
       { slide: 1, stage: 1 },
-      { slide: 1, stage: 2 },
       { slide: 1, stage: 3 },
       { slide: 1, stage: 4 },
       { slide: 1, stage: 5 },
       { slide: 1, stage: 6 },
+      { slide: 1, stage: 7 },
       { slide: 2, stage: 0 }
     ];
 

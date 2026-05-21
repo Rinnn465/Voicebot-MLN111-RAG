@@ -74,6 +74,33 @@ class FocusUiContractTest(unittest.TestCase):
         self.assertIn("principleConclusionTitle.textContent = data.conclusionTitle", html)
         self.assertIn("principleConclusionText.textContent = data.conclusionText", html)
 
+    def test_lesson_flow_skips_material_and_consciousness_highlight_step(self):
+        html = read("web/index.html")
+
+        lesson_frames_start = html.index("const lessonFrames = [")
+        lesson_frames_end = html.index("];", lesson_frames_start)
+        lesson_frames = html[lesson_frames_start:lesson_frames_end]
+
+        self.assertNotIn("{ slide: 1, stage: 2 }", lesson_frames)
+        self.assertIn("{ slide: 1, stage: 3 }", lesson_frames)
+
+    def test_outline_shows_first_branch_normally_before_highlighting_it(self):
+        html = read("web/index.html")
+        lesson_frames_start = html.index("const lessonFrames = [")
+        lesson_frames_end = html.index("];", lesson_frames_start)
+        lesson_frames = html[lesson_frames_start:lesson_frames_end]
+
+        self.assertNotIn('.outline-slide[data-stage="4"] .outline-branch--one', html)
+        self.assertIn('.outline-slide[data-stage="5"] .outline-branch--one', html)
+        self.assertLess(
+            lesson_frames.index("{ slide: 1, stage: 4 }"),
+            lesson_frames.index("{ slide: 1, stage: 5 }")
+        )
+        self.assertLess(
+            lesson_frames.index("{ slide: 1, stage: 5 }"),
+            lesson_frames.index("{ slide: 1, stage: 6 }")
+        )
+
     def test_voicebot_streams_answer_text_without_summary(self):
         html = read("web/index.html")
         js = read("static/app.js")
