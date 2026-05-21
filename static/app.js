@@ -38,7 +38,7 @@ let submitAfterStopStarted = false;
 let liveTextTimer = null;
 
 const stateConfig = {
-  idle: { label: "Idle", icon: "sparkles", message: "Nhấn mic để bắt đầu nói." },
+  idle: { label: "Idle", icon: "sparkles", message: "" },
   listening: { label: "Listening", icon: "radio", message: "Đang nghe... nhấn mic lần nữa để gửi." },
   thinking: { label: "Thinking", icon: "loader-circle", message: "Đang truy xuất và tổng hợp câu trả lời..." },
   speaking: { label: "Speaking", icon: "volume-2", message: "Đang phát câu trả lời." },
@@ -467,7 +467,7 @@ function arrayBufferToBase64(buffer) {
 
 function renderTranscript() {
   const combined = (finalTranscriptSegments.join(" ") || questionInput.value).trim();
-  transcriptFinalBox.textContent = combined || "Nhấn mic để nói. Tắt mic sẽ tự gửi câu hỏi và phát câu trả lời.";
+  transcriptFinalBox.textContent = combined || "Nhấn mic để nói";
 }
 
 function sendLiveMessage(payload) {

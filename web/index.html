@@ -212,6 +212,382 @@
       gap: 18px;
     }
 
+    .lesson-deck {
+      position: relative;
+      width: min(1280px, 100%);
+      min-height: calc(100svh - 134px);
+      margin: 0 auto;
+      isolation: isolate;
+    }
+
+    .lesson-slide-canvas {
+      position: relative;
+      min-height: calc(100svh - 134px);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(15, 118, 110, 0.16), transparent 28%),
+        radial-gradient(circle at 82% 18%, rgba(217, 119, 6, 0.15), transparent 30%),
+        linear-gradient(135deg, rgba(255, 255, 250, 0.92), rgba(232, 239, 231, 0.78));
+      box-shadow: 0 26px 80px rgba(21, 21, 21, 0.16);
+      overflow: hidden;
+    }
+
+    .lesson-slide {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: clamp(28px, 5vw, 72px);
+      opacity: 0;
+      transform: translateX(28px);
+      pointer-events: none;
+      transition: opacity 280ms ease, transform 280ms ease;
+    }
+
+    .lesson-slide.is-active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+      z-index: 1;
+    }
+
+
+    .title-slide {
+      text-align: center;
+    }
+
+    .title-slide h1 {
+      max-width: 15ch;
+      margin: 0;
+      font-size: clamp(42px, 8vw, 92px);
+      animation: float-up 640ms cubic-bezier(.2, .9, .2, 1) both;
+    }
+
+    .outline-slide {
+      align-items: center;
+      justify-items: center;
+      text-align: left;
+    }
+
+    .outline-stack {
+      width: min(760px, 100%);
+      display: grid;
+      gap: clamp(14px, 2vw, 22px);
+      transition: transform 360ms ease;
+    }
+
+    .outline-heading,
+    .outline-line,
+    .outline-dropdown {
+      opacity: 0;
+      transform: translateY(28px);
+    }
+
+    .outline-heading {
+      margin: 0 0 8px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      transition: opacity 260ms ease, transform 320ms ease;
+    }
+
+    .outline-line {
+      border: 1px solid rgba(21, 21, 21, 0.12);
+      border-radius: 16px;
+      padding: clamp(16px, 2.2vw, 24px) clamp(18px, 3vw, 30px);
+      background: rgba(255, 255, 255, 0.68);
+      box-shadow: 0 18px 44px rgba(21, 21, 21, 0.08);
+      font-family: "Literata", Georgia, serif;
+      font-size: clamp(28px, 4.2vw, 52px);
+      line-height: 1.08;
+      font-weight: 600;
+      transition: opacity 260ms ease, transform 360ms ease, font-weight 180ms ease, background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .outline-title-focus {
+      display: none;
+      font-weight: 900;
+    }
+
+    .outline-slide[data-stage="5"] .outline-title-original,
+    .outline-slide[data-stage="6"] .outline-title-original {
+      display: none;
+    }
+
+    .outline-slide[data-stage="5"] .outline-title-focus,
+    .outline-slide[data-stage="6"] .outline-title-focus {
+      display: block;
+    }
+
+    .outline-line.is-emphasis,
+    .outline-slide[data-stage="2"] .outline-line--one,
+    .outline-slide[data-stage="3"] .outline-line--two {
+      border-color: rgba(15, 118, 110, 0.38);
+      background: rgba(15, 118, 110, 0.1);
+      box-shadow: 0 22px 56px rgba(15, 118, 110, 0.14);
+      font-weight: 800;
+    }
+
+    .outline-slide[data-stage="0"] .outline-heading,
+    .outline-slide[data-stage="0"] .outline-line--one,
+    .outline-slide[data-stage="1"] .outline-heading,
+    .outline-slide[data-stage="1"] .outline-line,
+    .outline-slide[data-stage="2"] .outline-heading,
+    .outline-slide[data-stage="2"] .outline-line,
+    .outline-slide[data-stage="3"] .outline-heading,
+    .outline-slide[data-stage="3"] .outline-line,
+    .outline-slide[data-stage="4"] .outline-line--two,
+    .outline-slide[data-stage="4"] .outline-dropdown,
+    .outline-slide[data-stage="5"] .outline-line--two,
+    .outline-slide[data-stage="5"] .outline-dropdown,
+    .outline-slide[data-stage="6"] .outline-line--two,
+    .outline-slide[data-stage="6"] .outline-dropdown {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .outline-slide[data-stage="0"] .outline-heading { animation: float-up 420ms ease both; }
+    .outline-slide[data-stage="0"] .outline-line--one { animation: float-up 520ms 90ms ease both; }
+    .outline-slide[data-stage="1"] .outline-line--two { animation: float-up 520ms ease both; }
+    .outline-slide[data-stage="2"] .outline-line--one,
+    .outline-slide[data-stage="3"] .outline-line--two { animation: outline-pop 360ms ease both; }
+
+    .outline-slide[data-stage="4"] .outline-stack,
+    .outline-slide[data-stage="5"] .outline-stack,
+    .outline-slide[data-stage="6"] .outline-stack {
+      transform: translateY(-128px);
+    }
+
+    .outline-slide[data-stage="4"] .outline-heading,
+    .outline-slide[data-stage="4"] .outline-line--one,
+    .outline-slide[data-stage="5"] .outline-heading,
+    .outline-slide[data-stage="5"] .outline-line--one,
+    .outline-slide[data-stage="6"] .outline-heading,
+    .outline-slide[data-stage="6"] .outline-line--one {
+      opacity: 0;
+      transform: translateY(-18px);
+      pointer-events: none;
+    }
+
+    .outline-slide[data-stage="4"] .outline-line--two {
+      transform: translateY(-20px);
+    }
+
+    .outline-slide[data-stage="5"] .outline-line--two,
+    .outline-slide[data-stage="6"] .outline-line--two {
+      opacity: 1;
+      transform: translateY(-20px) scale(1.04);
+      pointer-events: auto;
+    }
+
+    .outline-dropdown {
+      display: grid;
+      gap: 10px;
+      margin-left: clamp(10px, 4vw, 48px);
+      transition: opacity 260ms ease, transform 320ms ease;
+    }
+
+    .outline-branch,
+    .outline-subitem {
+      border: 1px solid rgba(21, 21, 21, 0.12);
+      border-radius: 16px;
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.68);
+      color: #26342f;
+      font-size: clamp(18px, 2.15vw, 26px);
+      font-weight: 800;
+      transform-origin: left center;
+      box-shadow: 0 18px 44px rgba(21, 21, 21, 0.08);
+      max-height: 140px;
+      transition: opacity 240ms ease, transform 260ms ease, max-height 260ms ease, padding 220ms ease, background 220ms ease, color 220ms ease, border-color 220ms ease, box-shadow 220ms ease, font-weight 160ms ease;
+    }
+
+    .outline-branch,
+    .outline-subitems {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+
+    .outline-subitems {
+      display: grid;
+      gap: 10px;
+      margin-left: clamp(18px, 5vw, 70px);
+      transition: opacity 240ms ease, transform 260ms ease;
+    }
+
+    .outline-subitem {
+      display: block;
+      font-size: clamp(17px, 1.95vw, 24px);
+      font-weight: 700;
+    }
+
+    .outline-slide[data-stage="4"] .outline-branch,
+    .outline-slide[data-stage="5"] .outline-branch,
+    .outline-slide[data-stage="6"] .outline-branch,
+    .outline-slide[data-stage="5"] .outline-subitems,
+    .outline-slide[data-stage="6"] .outline-subitems {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .outline-slide[data-stage="5"] .outline-branch,
+    .outline-slide[data-stage="6"] .outline-branch {
+      opacity: 0;
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      border-width: 0;
+      box-shadow: none;
+      transform: translateY(-12px);
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .outline-slide[data-stage="5"] .outline-subitems,
+    .outline-slide[data-stage="6"] .outline-subitems {
+      margin-left: 0;
+      transform: translateY(-18px);
+    }
+
+    .outline-slide[data-stage="6"] .outline-subitem--principles {
+      border-color: rgba(15, 118, 110, 0.55);
+      color: var(--ink);
+      background: rgba(15, 118, 110, 0.12);
+      box-shadow: 0 24px 60px rgba(15, 118, 110, 0.2);
+      font-weight: 900;
+      transform: scale(1.06);
+    }
+
+    .content-slide {
+      place-items: stretch;
+      align-items: start;
+      padding: clamp(18px, 2.4vw, 30px) clamp(18px, 3vw, 38px) 92px;
+      overflow-y: auto;
+    }
+
+    .content-slide .lesson-grid {
+      width: 100%;
+    }
+
+
+    .content-slide .lesson-intro {
+      top: 0;
+    }
+
+    .content-slide .module-header {
+      cursor: pointer;
+      user-select: none;
+      transition: background 160ms ease;
+    }
+
+    .content-slide .module-header:hover,
+    .content-slide .module-header:focus-visible {
+      background: rgba(15, 118, 110, 0.06);
+      outline: none;
+    }
+
+    .content-slide .module:not(.is-expanded) > :not(.module-header) {
+      display: none !important;
+    }
+
+    .content-slide .module.is-expanded > :not(.module-header) {
+      opacity: 1;
+      pointer-events: auto;
+      animation: fade-in-soft 260ms ease both;
+    }
+
+    .content-slide .module.is-expanded > .principle-picker {
+      max-height: 180px;
+      padding-top: 18px !important;
+      padding-bottom: 18px !important;
+    }
+
+    .content-slide .module.is-expanded > .principle-stage {
+      max-height: 560px;
+      padding-bottom: 18px !important;
+    }
+
+    .content-slide .module.is-expanded > .map-board {
+      max-height: 620px;
+      padding-top: 18px !important;
+      padding-bottom: 18px !important;
+    }
+
+    .content-slide .module.is-expanded > .development-board {
+      max-height: 420px;
+      padding-top: 18px !important;
+      padding-bottom: 18px !important;
+    }
+
+    .content-slide.is-active .lesson-intro,
+    .content-slide.is-active .module {
+      animation: fade-in-soft 520ms ease both;
+    }
+
+    .content-slide.is-active .module:nth-child(1) { animation-delay: 90ms; }
+    .content-slide.is-active .module:nth-child(2) { animation-delay: 170ms; }
+    .content-slide.is-active .module:nth-child(3) { animation-delay: 250ms; }
+
+    .lesson-slide-nav {
+      position: absolute;
+      inset: auto 18px 18px;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .lesson-arrow {
+      width: 46px;
+      height: 46px;
+      border: 1px solid rgba(21, 21, 21, 0.16);
+      border-radius: 999px;
+      display: inline-grid;
+      place-items: center;
+      color: white;
+      background: #151515;
+      box-shadow: 0 14px 36px rgba(21, 21, 21, 0.18);
+      cursor: pointer;
+      pointer-events: auto;
+      transition: transform 160ms ease, opacity 160ms ease, background 160ms ease;
+    }
+
+    .lesson-arrow:hover:not(:disabled) {
+      transform: translateY(-2px);
+      background: var(--teal);
+    }
+
+    .lesson-arrow:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .lesson-arrow i {
+      width: 18px;
+      height: 18px;
+    }
+
+
+    @keyframes float-up {
+      from { opacity: 0; transform: translateY(34px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes outline-pop {
+      0% { transform: translateY(0) scale(1); }
+      55% { transform: translateY(-4px) scale(1.02); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    @keyframes fade-in-soft {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .module {
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -397,11 +773,14 @@
 
     .map-result {
       margin-top: 18px;
-      border-left: 4px solid var(--red);
-      padding: 13px 14px;
-      background: rgba(194, 65, 12, 0.08);
-      color: #3b312c;
-      line-height: 1.62;
+      border: 1px solid rgba(21, 21, 21, 0.12);
+      border-radius: 16px;
+      padding: 18px 20px;
+      background: rgba(255, 255, 255, 0.74);
+      color: #2f3935;
+      font-weight: 650;
+      line-height: 1.68;
+      box-shadow: 0 18px 44px rgba(21, 21, 21, 0.08);
     }
 
     .scenario-lab {
@@ -519,11 +898,15 @@
     }
 
     .phase-output {
-      border-left: 4px solid var(--gold);
-      padding: 13px 14px;
-      background: rgba(217, 119, 6, 0.1);
-      color: #3b312c;
-      line-height: 1.62;
+      margin: 0;
+      border: 1px solid rgba(21, 21, 21, 0.12);
+      border-radius: 16px;
+      padding: 18px 20px;
+      background: rgba(255, 255, 255, 0.74);
+      color: #2f3935;
+      font-weight: 650;
+      line-height: 1.68;
+      box-shadow: 0 18px 44px rgba(21, 21, 21, 0.08);
     }
 
     .quiz-arena {
@@ -948,6 +1331,10 @@
       line-height: 1.5;
     }
 
+    .status-line:empty {
+      display: none;
+    }
+
     .answer-card {
       margin-top: 10px;
       overflow: hidden;
@@ -1101,6 +1488,27 @@
       line-height: 1.62;
     }
 
+    @media (prefers-reduced-motion: reduce) {
+      .lesson-slide,
+      .outline-stack,
+      .outline-line,
+      .outline-dropdown,
+      .lesson-arrow {
+        transition: none;
+      }
+
+      .title-slide h1,
+      .outline-slide[data-stage="0"] .outline-heading,
+      .outline-slide[data-stage="0"] .outline-line--one,
+      .outline-slide[data-stage="1"] .outline-line--two,
+      .outline-slide[data-stage="2"] .outline-line--one,
+      .outline-slide[data-stage="3"] .outline-line--two,
+      .content-slide.is-active .lesson-intro,
+      .content-slide.is-active .module {
+        animation: none;
+      }
+    }
+
     @media (max-width: 980px) {
       .lesson-grid,
       .principle-stage,
@@ -1167,111 +1575,145 @@
   </nav>
 
   <main id="lessonTab" class="tab-panel lesson-panel" aria-labelledby="lessonTitle">
-    <div class="lesson-grid">
-      <aside class="lesson-intro">
-        <div>
-          <p class="eyebrow">MLN111 - Chương 2</p>
-          <h1 id="lessonTitle">Hai nguyên lý của phép biện chứng duy vật</h1>
-        </div>
-      </aside>
+    <section class="lesson-deck" id="lessonDeck" aria-label="Slide nội dung chương 2" data-frame="0">
+      <div class="lesson-slide-canvas" id="lessonSlideCanvas">
+        <article class="lesson-slide title-slide is-active" data-lesson-slide="0" data-stage="0" aria-labelledby="lessonTitle">
+          <h1 id="lessonTitle">Chương 2<br><span>Chủ nghĩa duy vật biện chứng</span></h1>
+        </article>
 
-      <section class="lesson-flow" aria-label="Nội dung thuyết trình tương tác">
-        <article class="module">
-          <header class="module-header">
-            <h2 class="module-title">Chọn nguyên lý để trình bày</h2>
-            <span class="module-index">01</span>
-          </header>
-          <div class="principle-picker" role="group" aria-label="Chọn nguyên lý">
-            <button class="principle-button is-selected" type="button" data-principle="relation">
-              <small>Nguyên lý 1</small>
-              <strong>Mối liên hệ phổ biến</strong>
-            </button>
-            <button class="principle-button" type="button" data-principle="development">
-              <small>Nguyên lý 2</small>
-              <strong>Sự phát triển</strong>
-            </button>
-          </div>
-          <div class="principle-stage">
-            <div class="statement">
-              <h3 id="principleName">Mối liên hệ phổ biến</h3>
-              <p id="principleSummary">
-                Sự vật, hiện tượng tồn tại trong các mối liên hệ qua lại, quy định, tác động, thâm nhập và chuyển hóa lẫn nhau. Không có đối tượng nào tồn tại hoàn toàn cô lập.
-              </p>
+        <article class="lesson-slide outline-slide" data-lesson-slide="1" data-stage="0" aria-label="Outline chương 2" hidden>
+          <div class="outline-stack">
+            <p class="outline-heading">Outline chương 2</p>
+            <div class="outline-line outline-line--one">I. Vật chất và ý thức</div>
+            <div class="outline-line outline-line--two"><span class="outline-title-original">II. Phép biện chứng duy vật</span><span class="outline-title-focus">2. Nội dung của phép biện chứng duy vật</span></div>
+            <div class="outline-dropdown" aria-label="Outline phần phép biện chứng duy vật">
+              <span class="outline-branch outline-branch--one">1. Hai loại hình biện chứng và phép biện chứng duy vật</span>
+              <span class="outline-branch outline-branch--two">2. Nội dung của phép biện chứng duy vật</span>
+              <div class="outline-subitems">
+                <span class="outline-subitem outline-subitem--principles">Hai nguyên lý của phép biện chứng duy vật</span>
+                <span class="outline-subitem">Các cặp phạm trù cơ bản của phép biện chứng duy vật</span>
+              </div>
             </div>
-            <div class="trait-list" id="principleTraits" aria-live="polite"></div>
           </div>
         </article>
 
-        <article class="module">
-          <header class="module-header">
-            <h2 class="module-title">Bản đồ liên hệ</h2>
-            <span class="module-index">02</span>
-          </header>
-          <div class="map-board">
-            <div class="node-grid">
-              <button class="concept-node is-hot" type="button" data-map="student">
-                <strong>Sinh viên</strong>
-                <span>Chủ thể học tập, nhận thức, hành động.</span>
-              </button>
-              <button class="concept-node" type="button" data-map="class">
-                <strong>Lớp học</strong>
-                <span>Môi trường trực tiếp tạo nhịp trao đổi.</span>
-              </button>
-              <button class="concept-node" type="button" data-map="society">
-                <strong>Xã hội</strong>
-                <span>Nhu cầu, chuẩn mực, điều kiện lịch sử.</span>
-              </button>
-              <button class="concept-node" type="button" data-map="practice">
-                <strong>Thực tiễn</strong>
-                <span>Nơi kiểm nghiệm và đặt nhiệm vụ mới.</span>
-              </button>
-              <button class="concept-node" type="button" data-map="method">
-                <strong>Phương pháp</strong>
-                <span>Cách tiếp cận toàn diện hoặc phiến diện.</span>
-              </button>
-              <button class="concept-node" type="button" data-map="future">
-                <strong>Tương lai</strong>
-                <span>Khuynh hướng biến đổi cần dự báo.</span>
-              </button>
-            </div>
-            <p id="mapResult" class="map-result" aria-live="polite">
-              Chọn từng nút để thấy cách một đối tượng chỉ được hiểu đúng khi đặt vào hệ liên hệ cụ thể.
-            </p>
+        <article class="lesson-slide content-slide" data-lesson-slide="2" data-stage="0" aria-label="Nội dung hiện tại" hidden>
+          <div class="lesson-grid">
+            <aside class="lesson-intro">
+              <div>
+                <p class="eyebrow">MLN111 - Chương 2</p>
+                <h1>Hai nguyên lý của phép biện chứng duy vật</h1>
+              </div>
+            </aside>
+
+            <section class="lesson-flow" aria-label="Nội dung thuyết trình tương tác">
+              <article class="module" data-content-module>
+                <header class="module-header" role="button" tabindex="0" aria-expanded="false" data-module-toggle>
+                  <h2 class="module-title">Các nguyên lý</h2>
+                  <span class="module-index">01</span>
+                </header>
+                <div class="principle-picker" role="group" aria-label="Chọn nguyên lý">
+                  <button class="principle-button is-selected" type="button" data-principle="relation">
+                    <small>Nguyên lý 1</small>
+                    <strong>Mối liên hệ phổ biến</strong>
+                  </button>
+                  <button class="principle-button" type="button" data-principle="development">
+                    <small>Nguyên lý 2</small>
+                    <strong>Sự phát triển</strong>
+                  </button>
+                </div>
+                <div class="principle-stage">
+                  <div class="statement">
+                    <h3 id="principleName">Mối liên hệ phổ biến</h3>
+                    <p id="principleSummary">
+                      Sự vật, hiện tượng tồn tại trong các mối liên hệ qua lại, quy định, tác động, thâm nhập và chuyển hóa lẫn nhau. Không có đối tượng nào tồn tại hoàn toàn cô lập.
+                    </p>
+                  </div>
+                  <div class="trait-list" id="principleTraits" aria-live="polite"></div>
+                </div>
+              </article>
+
+              <article class="module" data-content-module>
+                <header class="module-header" role="button" tabindex="0" aria-expanded="false" data-module-toggle>
+                  <h2 class="module-title">Bản đồ liên hệ</h2>
+                  <span class="module-index">02</span>
+                </header>
+                <div class="map-board">
+                  <div class="node-grid">
+                    <button class="concept-node is-hot" type="button" data-map="student">
+                      <strong>Sinh viên</strong>
+                      <span>Trung tâm của ví dụ, nhưng không tồn tại cô lập.</span>
+                    </button>
+                    <button class="concept-node" type="button" data-map="class">
+                      <strong>Lớp học</strong>
+                      <span>Không gian trao đổi, phản biện, hợp tác.</span>
+                    </button>
+                    <button class="concept-node" type="button" data-map="teacher">
+                      <strong>Giảng viên</strong>
+                      <span>Định hướng cách đặt vấn đề và phương pháp học.</span>
+                    </button>
+                    <button class="concept-node" type="button" data-map="material">
+                      <strong>Tài liệu</strong>
+                      <span>Cơ sở tri thức để đọc, hiểu, đối chiếu.</span>
+                    </button>
+                    <button class="concept-node" type="button" data-map="practice">
+                      <strong>Thực tiễn</strong>
+                      <span>Nơi kiểm nghiệm và làm rõ ý nghĩa kiến thức.</span>
+                    </button>
+                    <button class="concept-node" type="button" data-map="society">
+                      <strong>Xã hội</strong>
+                      <span>Bối cảnh, nhu cầu, điều kiện lịch sử cụ thể.</span>
+                    </button>
+                  </div>
+                  <p id="mapResult" class="map-result" aria-live="polite">
+                    Sinh viên là điểm trung tâm của ví dụ, nhưng kết quả học tập hình thành trong mạng lưới quan hệ với lớp học, giảng viên, tài liệu, thực tiễn và xã hội.
+                  </p>
+                </div>
+              </article>
+
+              <article class="module" data-content-module>
+                <header class="module-header" role="button" tabindex="0" aria-expanded="false" data-module-toggle>
+                  <h2 class="module-title">Mô phỏng sự phát triển</h2>
+                  <span class="module-index">03</span>
+                </header>
+                <div class="development-board">
+                  <div class="step-track" role="group" aria-label="Chọn giai đoạn phát triển">
+                    <button class="step-card is-active" type="button" data-phase-card="0" aria-pressed="true">
+                      <strong>1. Tích lũy lượng</strong>
+                      <span>Những thay đổi nhỏ, dần dần về lượng.</span>
+                    </button>
+                    <button class="step-card" type="button" data-phase-card="1" aria-pressed="false">
+                      <strong>2. Mâu thuẫn</strong>
+                      <span>Xung đột giữa mặt cũ và yêu cầu mới.</span>
+                    </button>
+                    <button class="step-card" type="button" data-phase-card="2" aria-pressed="false">
+                      <strong>3. Bước nhảy về chất</strong>
+                      <span>Tích lũy đủ làm chất mới xuất hiện.</span>
+                    </button>
+                    <button class="step-card" type="button" data-phase-card="3" aria-pressed="false">
+                      <strong>4. Khuynh hướng đi lên</strong>
+                      <span>Cái mới kế thừa và vượt qua cái cũ.</span>
+                    </button>
+                  </div>
+                  <p id="phaseOutput" class="phase-output" aria-live="polite">
+                    Phát triển không phải mọi vận động, mà là quá trình biến đổi theo khuynh hướng đi lên: từ thấp đến cao, từ kém hoàn thiện đến hoàn thiện hơn.
+                  </p>
+                </div>
+              </article>
+            </section>
           </div>
         </article>
+      </div>
 
-        <article class="module">
-          <header class="module-header">
-            <h2 class="module-title">Mô phỏng sự phát triển</h2>
-            <span class="module-index">03</span>
-          </header>
-          <div class="development-board">
-            <div class="step-track" role="group" aria-label="Chọn giai đoạn phát triển">
-              <button class="step-card is-active" type="button" data-phase-card="0" aria-pressed="true">
-                <strong>1. Tích lũy</strong>
-                <span>Các biến đổi nhỏ xuất hiện trong lòng sự vật cũ.</span>
-              </button>
-              <button class="step-card" type="button" data-phase-card="1" aria-pressed="false">
-                <strong>2. Mâu thuẫn</strong>
-                <span>Cái cũ không còn phù hợp với điều kiện mới.</span>
-              </button>
-              <button class="step-card" type="button" data-phase-card="2" aria-pressed="false">
-                <strong>3. Bước nhảy</strong>
-                <span>Sự vật mới ra đời, phủ định cái lỗi thời.</span>
-              </button>
-              <button class="step-card" type="button" data-phase-card="3" aria-pressed="false">
-                <strong>4. Kế thừa</strong>
-                <span>Yếu tố tích cực được giữ lại và cải tạo.</span>
-              </button>
-            </div>
-            <p id="phaseOutput" class="phase-output" aria-live="polite">
-              Phát triển không phải mọi vận động, mà là vận động theo khuynh hướng đi lên từ thấp đến cao, từ kém hoàn thiện đến hoàn thiện hơn.
-            </p>
-          </div>
-        </article>
-
-      </section>
-    </div>
+      <div class="lesson-slide-nav" aria-label="Điều khiển slide nội dung">
+        <button class="lesson-arrow" id="lessonPrev" type="button" aria-label="Lùi animation hoặc slide trước" aria-controls="lessonSlideCanvas">
+          <i data-lucide="arrow-left" aria-hidden="true"></i>
+        </button>
+        <button class="lesson-arrow" id="lessonNext" type="button" aria-label="Tiếp animation hoặc slide sau" aria-controls="lessonSlideCanvas">
+          <i data-lucide="arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </section>
   </main>
 
 
@@ -1393,12 +1835,12 @@
         </article>
         <article class="usage-note-card">
           <strong>Sáng tạo</strong>
-          <p>AI hỗ trợ tạo VoiceBot, sơ đồ/luồng RAG, quiz và trải nghiệm nghe nói; không thay thế sinh viên.</p>
+          <p>AI hỗ trợ tạo VoiceBot, sơ đồ/luồng RAG, quiz và trải nghiệm nghe nói.</p>
         </article>
       </section>
 
       <div class="integrity-banner">
-        Liêm chính học thuật: Không để AI làm thay hoàn toàn. AI output và phần sinh viên biên soạn được phân định rõ; nội dung cuối cùng do nhóm kiểm tra, chỉnh sửa và chịu trách nhiệm.
+        Liêm chính học thuật: Không để AI làm thay hoàn toàn. AI output và phần sinh viên biên soạn được phân định rõ. <br> Nội dung cuối cùng do nhóm kiểm tra, chỉnh sửa và chịu trách nhiệm.
       </div>
     </div>
   </main>
@@ -1450,7 +1892,7 @@
               <span>Voice chat</span>
               <span id="micStatus" class="mic-status">Mic sẵn sàng</span>
             </div>
-            <p id="transcriptFinal" class="transcript-text">Nhấn mic để nói. Tắt mic sẽ tự gửi câu hỏi và phát câu trả lời.</p>
+            <p id="transcriptFinal" class="transcript-text">Nhấn mic để nói</p>
             <p id="transcriptPartial" class="transcript-partial"></p>
             <textarea
               id="question"
@@ -1497,29 +1939,30 @@
       },
       development: {
         name: "Sự phát triển",
-        summary: "Phát triển là quá trình vận động theo khuynh hướng đi lên: từ thấp đến cao, từ kém hoàn thiện đến hoàn thiện hơn, từ chất cũ đến chất mới ở trình độ cao hơn.",
+        summary: "Phát triển là quá trình vận động theo khuynh hướng đi lên, thông qua bước nhảy, sự thay thế cái cũ bằng cái mới và sự giải quyết mâu thuẫn bên trong sự vật.",
         traits: [
-          ["Khách quan", "Nguồn gốc phát triển nằm trong chính sự vật, đặc biệt ở mâu thuẫn bên trong."],
-          ["Phổ biến", "Phát triển diễn ra trong tự nhiên, xã hội và tư duy, nhưng mỗi lĩnh vực có hình thức riêng."],
-          ["Kế thừa", "Cái mới phủ định cái lỗi thời, đồng thời giữ lại và cải tạo yếu tố tích cực của cái cũ."]
+          ["Khách quan", "Nguồn gốc phát triển nằm trong chính bản thân sự vật, hiện tượng; không phụ thuộc vào ý muốn chủ quan của con người."],
+          ["Phổ biến", "Sự phát triển có mặt trong mọi lĩnh vực: tự nhiên, xã hội và tư duy."],
+          ["Kế thừa", "Cái mới không phủ định sạch trơn cái cũ, mà giữ lại, chọn lọc và cải tạo những yếu tố còn phù hợp."],
+          ["Đa dạng, phong phú", "Mỗi sự vật, hiện tượng có quá trình phát triển không giống nhau, phụ thuộc vào không gian, thời gian, điều kiện và các yếu tố tác động."]
         ]
       }
     };
 
     const mapData = {
-      student: "Sinh viên không chỉ là cá nhân học thuộc bài. Kết quả học chịu tác động từ mục tiêu, phương pháp, lớp học, tài liệu, thực tiễn và động cơ cá nhân.",
-      class: "Lớp học là môi trường liên hệ trực tiếp: câu hỏi, phản biện, ví dụ và cách giảng làm nội dung triết học trở nên rõ hơn.",
-      society: "Xã hội tạo điều kiện lịch sử cụ thể. Vì thế khi phân tích một quan điểm, cần xét nhu cầu, lợi ích và hoàn cảnh của thời đại.",
-      practice: "Thực tiễn vừa là cơ sở, vừa là nơi kiểm nghiệm nhận thức. Nói ngắn: hiểu đúng phải quay lại hành động.",
-      method: "Phương pháp quyết định cách nhìn. Toàn diện giúp thấy liên hệ bản chất; phiến diện dễ biến một mặt thành toàn bộ sự thật.",
-      future: "Nguyên lý phát triển yêu cầu dự báo khuynh hướng, nhận ra cái mới hợp quy luật và tránh bám chặt cái đã lỗi thời."
+      student: "Sinh viên là điểm trung tâm của ví dụ, nhưng kết quả học tập hình thành trong mạng lưới quan hệ với lớp học, giảng viên, tài liệu, thực tiễn và xã hội.",
+      class: "Lớp học tạo mối liên hệ trực tiếp qua trao đổi, phản biện, hợp tác nhóm và nhịp học chung. Vì vậy việc học không chỉ là hoạt động cá nhân.",
+      teacher: "Giảng viên định hướng vấn đề, chọn ví dụ và gợi phương pháp tiếp cận. Cách giảng tác động đến cách sinh viên hiểu và vận dụng khái niệm.",
+      material: "Giáo trình, slide và tài liệu tham khảo là cơ sở tri thức để sinh viên đọc, đối chiếu, kiểm tra và hệ thống hóa nội dung.",
+      practice: "Thực tiễn giúp kiểm nghiệm nhận thức: kiến thức triết học trở nên rõ hơn khi được liên hệ với học tập, công nghệ, lao động và đời sống xã hội.",
+      society: "Xã hội cung cấp bối cảnh lịch sử cụ thể: nhu cầu, điều kiện, chuẩn mực và vấn đề của thời đại ảnh hưởng đến mục tiêu học tập."
     };
 
     const phaseData = [
-      "Phát triển không phải mọi vận động, mà là vận động theo khuynh hướng đi lên từ thấp đến cao, từ kém hoàn thiện đến hoàn thiện hơn.",
-      "Khi điều kiện thay đổi, mâu thuẫn giữa cái cũ và yêu cầu mới làm sự vật không thể giữ nguyên như trước.",
-      "Bước nhảy tạo chuyển hóa về chất: cái mới ra đời, cái cũ mất vai trò lịch sử hoặc bị vượt qua.",
-      "Cái mới không phủ định sạch trơn. Nó kế thừa yếu tố hợp lý của cái cũ và cải tạo chúng trong điều kiện mới."
+      "Phát triển bắt đầu từ những thay đổi dần dần về lượng. Khi các biến đổi nhỏ được tích lũy đủ, chúng chuẩn bị điều kiện cho sự chuyển hóa về chất.",
+      "Nguồn gốc của phát triển nằm trong mâu thuẫn bên trong sự vật: giữa cái cũ và cái mới, giữa trạng thái hiện có và yêu cầu biến đổi.",
+      "Bước nhảy là điểm chuyển hóa về chất. Sự vật không chỉ tăng thêm về lượng, mà chuyển sang trạng thái mới với cấu trúc, chức năng hoặc trình độ mới.",
+      "Phát triển có khuynh hướng đi lên nhưng không thẳng tắp. Cái mới phủ định cái cũ một cách biện chứng: loại bỏ mặt lỗi thời, kế thừa và cải tạo yếu tố còn hợp lý."
     ];
 
     const quizBank = [
@@ -1607,6 +2050,69 @@
           item.classList.toggle("is-active", item === button);
         });
         window.dispatchEvent(new Event("resize"));
+      });
+    });
+
+    const lessonFrames = [
+      { slide: 0, stage: 0 },
+      { slide: 1, stage: 0 },
+      { slide: 1, stage: 1 },
+      { slide: 1, stage: 2 },
+      { slide: 1, stage: 3 },
+      { slide: 1, stage: 4 },
+      { slide: 1, stage: 5 },
+      { slide: 1, stage: 6 },
+      { slide: 2, stage: 0 }
+    ];
+
+    let currentLessonFrame = 0;
+    const lessonDeck = document.getElementById("lessonDeck");
+    const lessonSlides = document.querySelectorAll("[data-lesson-slide]");
+    const lessonPrev = document.getElementById("lessonPrev");
+    const lessonNext = document.getElementById("lessonNext");
+
+    function renderLessonFrame() {
+      const frame = lessonFrames[currentLessonFrame];
+      lessonDeck.dataset.frame = String(currentLessonFrame);
+      lessonSlides.forEach((slide) => {
+        const isActive = Number(slide.dataset.lessonSlide) === frame.slide;
+        slide.classList.toggle("is-active", isActive);
+        slide.hidden = !isActive;
+        if (isActive) {
+          slide.dataset.stage = String(frame.stage);
+        }
+      });
+      lessonPrev.disabled = currentLessonFrame === 0;
+      lessonNext.disabled = currentLessonFrame === lessonFrames.length - 1;
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    lessonPrev.addEventListener("click", () => {
+      currentLessonFrame = Math.max(0, currentLessonFrame - 1);
+      renderLessonFrame();
+    });
+
+    lessonNext.addEventListener("click", () => {
+      currentLessonFrame = Math.min(lessonFrames.length - 1, currentLessonFrame + 1);
+      renderLessonFrame();
+    });
+
+    renderLessonFrame();
+
+    document.querySelectorAll("[data-module-toggle]").forEach((header) => {
+      header.addEventListener("click", () => {
+        const module = header.closest("[data-content-module]");
+        const isExpanded = module.classList.toggle("is-expanded");
+        header.setAttribute("aria-expanded", String(isExpanded));
+      });
+
+      header.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          header.click();
+        }
       });
     });
 
