@@ -63,6 +63,10 @@ function setVisualState(state, message) {
   }
 }
 
+function setAnswerVisible(visible) {
+  document.body.dataset.answerVisible = String(visible);
+}
+
 function isAnswerAudioPlaying() {
   const audio = getAnswerAudio();
   return Boolean(audio.src) && !audio.paused && !audio.ended;
@@ -107,6 +111,7 @@ function startAnswerLiveText(text, durationSeconds = 0) {
     return;
   }
 
+  setAnswerVisible(true);
   answerLiveBox.textContent = "";
   answerLiveBox.classList.remove("hidden");
   keepAnswerLiveTextInView();
@@ -130,6 +135,7 @@ function startAnswerLiveText(text, durationSeconds = 0) {
 function finishAnswerLiveText(text) {
   clearInterval(liveTextTimer);
   liveTextTimer = null;
+  setAnswerVisible(true);
   answerLiveBox.textContent = normalizeAnswerText(text);
   answerLiveBox.classList.remove("hidden");
   keepAnswerLiveTextInView();
@@ -541,6 +547,7 @@ function resetAnswerAudio() {
   const audio = getAnswerAudio();
   clearInterval(liveTextTimer);
   liveTextTimer = null;
+  setAnswerVisible(false);
   audio.pause();
   audio.removeAttribute("src");
   audio.load();
