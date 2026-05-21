@@ -1003,9 +1003,14 @@
     }
 
     .quiz-action-group {
+      width: 100%;
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
+    }
+
+    #quizNext {
+      margin-left: auto;
     }
 
     .quiz-control {
@@ -1724,32 +1729,28 @@
         <p class="eyebrow">Tương tác lớp học</p>
         <h1 id="quizTitle">Quiz</h1>
         <p class="lead">
-          Phần hỏi nhanh để lớp cùng kiểm tra hai nguyên lý của phép biện chứng duy vật trước khi chuyển sang VoiceBot hoặc tổng kết.
+          Cùng ôn lại hai nguyên lý của phép biện chứng duy vật
         </p>
       </section>
 
       <article class="module">
         <header class="module-header">
-          <h2 class="module-title">Quiz tương tác cho lớp</h2>
+          <h2 class="module-title">Quiz tương tác</h2>
           <span class="module-index">Q</span>
         </header>
         <div class="quiz-arena" aria-label="Quiz hai nguyên lý">
           <div class="quiz-topline">
-            <span>Hỏi lớp - bấm đáp án để chốt</span>
+            <span>Đáp án nào là đúng?</span>
             <span id="quizCounter" class="quiz-counter">01 / 10</span>
           </div>
           <p id="quizQuestion" class="quiz-question">Đang tải câu hỏi...</p>
           <div id="quizOptions" class="quiz-options" role="group" aria-label="Các đáp án"></div>
-          <p id="quizFeedback" class="quiz-feedback" aria-live="polite">Mời lớp chọn đáp án. Sau đó bấm “Giải thích” nếu cần chốt ý.</p>
+          <p id="quizFeedback" class="quiz-feedback" aria-live="polite" hidden></p>
           <div class="quiz-actions">
             <div class="quiz-action-group">
               <button id="quizPrev" class="quiz-control" type="button">
                 <i data-lucide="arrow-left" aria-hidden="true"></i>
                 Trước
-              </button>
-              <button id="quizExplain" class="quiz-control" type="button">
-                <i data-lucide="lightbulb" aria-hidden="true"></i>
-                Giải thích
               </button>
               <button id="quizNext" class="quiz-control primary" type="button">
                 Tiếp
@@ -1967,64 +1968,64 @@
 
     const quizBank = [
       {
-        question: "Nguyên lý về mối liên hệ phổ biến yêu cầu ta tránh cách nhìn nào?",
-        options: ["Toàn diện", "Lịch sử - cụ thể", "Phiến diện, một chiều", "Phân tích mối liên hệ bản chất"],
-        answer: 2,
-        explain: "Vì sự vật có nhiều mặt, nhiều mối liên hệ. Chỉ nhìn một mặt dễ biến phần nhỏ thành toàn bộ sự thật."
+        question: "Hai nguyên lý của phép biện chứng duy vật là gì?",
+        options: ["Vật chất và ý thức; tồn tại và tư duy", "Mối liên hệ phổ biến; sự phát triển", "Nguyên nhân và kết quả; khả năng và hiện thực", "Lượng - chất; phủ định của phủ định"],
+        answer: 1,
+        explain: "Giáo trình xác định hai nguyên lý có phạm vi khái quát và ứng dụng phổ quát nhất là nguyên lý về mối liên hệ phổ biến và nguyên lý về sự phát triển."
       },
       {
-        question: "Cơ sở của các mối liên hệ trong phép biện chứng duy vật là gì?",
+        question: "Cơ sở của các mối liên hệ phổ biến là gì?",
         options: ["Ý niệm tuyệt đối", "Tính thống nhất vật chất của thế giới", "Cảm giác cá nhân", "Sự sắp đặt ngẫu nhiên"],
         answer: 1,
-        explain: "Giáo trình nêu: thế giới là một chỉnh thể vật chất thống nhất, nên các sự vật không tồn tại cô lập."
+        explain: "Các sự vật, hiện tượng là những dạng tồn tại khác nhau của một thế giới vật chất thống nhất, nên chúng có liên hệ với nhau."
       },
       {
-        question: "Tính đa dạng của mối liên hệ nghĩa là gì?",
-        options: ["Mọi liên hệ đều như nhau", "Có nhiều loại liên hệ với vai trò khác nhau", "Chỉ có liên hệ trực tiếp", "Chỉ có liên hệ trong tự nhiên"],
-        answer: 1,
-        explain: "Có liên hệ trực tiếp, gián tiếp, tất nhiên, ngẫu nhiên, bản chất, không bản chất, chủ yếu, thứ yếu."
-      },
-      {
-        question: "Phát triển khác vận động ở điểm nào?",
-        options: ["Phát triển là đứng yên", "Mọi vận động đều là phát triển", "Phát triển là vận động theo khuynh hướng đi lên", "Phát triển chỉ là tăng số lượng"],
-        answer: 2,
-        explain: "Phát triển là vận động từ thấp đến cao, kém hoàn thiện đến hoàn thiện hơn, từ chất cũ đến chất mới."
-      },
-      {
-        question: "Quan điểm biện chứng về phát triển nhấn mạnh nguồn gốc nào?",
-        options: ["Mệnh lệnh bên ngoài", "May rủi thuần túy", "Mâu thuẫn bên trong sự vật", "Ý muốn chủ quan"],
-        answer: 2,
-        explain: "Nguồn gốc vận động, phát triển nằm trong sự đấu tranh giữa các mặt đối lập bên trong sự vật."
-      },
-      {
-        question: "Cái mới hợp quy luật nên được ứng xử thế nào trong thực tiễn?",
-        options: ["Bỏ qua vì chưa quen", "Ủng hộ và tạo điều kiện phát triển", "Cấm vì khác cái cũ", "Chờ nó tự thắng"],
-        answer: 1,
-        explain: "Nguyên tắc phát triển yêu cầu sớm phát hiện, ủng hộ cái mới hợp quy luật, chống bảo thủ, trì trệ."
-      },
-      {
-        question: "Khi cái mới ra đời, nó có phủ định sạch trơn cái cũ không?",
-        options: ["Có, xóa toàn bộ", "Không, kế thừa chọn lọc yếu tố tích cực", "Không, giữ nguyên mọi thứ", "Có, vì cái cũ luôn vô dụng"],
-        answer: 1,
-        explain: "Phát triển có tính kế thừa: gạt bỏ mặt lỗi thời, giữ và cải tạo yếu tố còn phù hợp."
-      },
-      {
-        question: "Muốn hiểu đúng một hiện tượng xã hội, nguyên tắc toàn diện yêu cầu gì?",
-        options: ["Xem bối cảnh, điều kiện, các bên liên quan", "Chỉ nghe một nguồn", "Chỉ xét hiện tại", "Chỉ nhìn kết quả cuối"],
+        question: "Ba tính chất cơ bản của mối liên hệ phổ biến là gì?",
+        options: ["Khách quan, phổ biến, đa dạng phong phú", "Chủ quan, ngẫu nhiên, bất biến", "Tĩnh tại, cô lập, đơn tuyến", "Tăng trưởng, kế thừa, xoáy ốc"],
         answer: 0,
-        explain: "Cần đặt đối tượng trong chỉnh thể: mặt, bộ phận, thuộc tính, môi trường, quá khứ, hiện tại, tương lai."
+        explain: "Giáo trình trình bày mối liên hệ phổ biến có tính khách quan, tính phổ biến và tính đa dạng, phong phú."
       },
       {
-        question: "Vì sao phát triển có thể có bước lùi tạm thời?",
-        options: ["Vì phát triển luôn thất bại", "Vì tiến trình đi lên có thể quanh co, qua vận động chữ chi", "Vì không có quy luật", "Vì cái cũ luôn mạnh hơn"],
-        answer: 1,
-        explain: "Giáo trình nhấn mạnh phát triển theo xu hướng đi lên nhưng quanh co, phức tạp, có thể có bước thụt lùi tương đối."
+        question: "Nguyên tắc toàn diện yêu cầu gì khi xem xét một đối tượng?",
+        options: ["Đặt đối tượng trong chỉnh thể các mặt, yếu tố và mối liên hệ", "Chỉ xét một nguyên nhân trực tiếp", "Tách đối tượng khỏi bối cảnh", "Chỉ nhìn kết quả cuối cùng"],
+        answer: 0,
+        explain: "Từ nguyên lý mối liên hệ phổ biến, cần xem xét đối tượng trong chỉnh thể thống nhất của các mặt, bộ phận, thuộc tính và mối liên hệ."
       },
       {
-        question: "Câu chốt đúng nhất cho hai nguyên lý là gì?",
-        options: ["Nhìn sự vật cô lập và giữ nguyên cái cũ", "Nhìn sự vật trong liên hệ và trong quá trình phát triển", "Chỉ cần học thuộc định nghĩa", "Phát triển chỉ là tăng trưởng"],
+        question: "Theo quan điểm biện chứng, phát triển là gì?",
+        options: ["Mọi sự vận động nói chung", "Sự đứng yên tuyệt đối", "Vận động đi lên, từ thấp đến cao, từ kém hoàn thiện đến hoàn thiện hơn", "Sự lặp lại nguyên trạng cái cũ"],
+        answer: 2,
+        explain: "Phát triển là trường hợp đặc biệt của vận động, khái quát xu hướng vận động đi lên của sự vật, hiện tượng."
+      },
+      {
+        question: "Nguồn gốc của sự phát triển nằm ở đâu?",
+        options: ["Mệnh lệnh bên ngoài", "Mâu thuẫn bên trong sự vật, hiện tượng", "Ý muốn chủ quan", "May rủi thuần túy"],
         answer: 1,
-        explain: "Đây là câu kết tốt khi thuyết trình: thấy mạng lưới quan hệ và khuynh hướng vận động của sự vật."
+        explain: "Giáo trình nhấn mạnh nguồn gốc bên trong của vận động, phát triển là đấu tranh giữa các mặt đối lập trong sự vật, hiện tượng."
+      },
+      {
+        question: "Bốn tính chất của sự phát triển là gì?",
+        options: ["Khách quan, phổ biến, kế thừa, đa dạng phong phú", "Khách quan, phổ biến, trực tiếp, tất nhiên", "Chủ quan, phổ biến, kế thừa, bất biến", "Đơn giản, tuyến tính, ngẫu nhiên, sạch trơn"],
+        answer: 0,
+        explain: "Giáo trình nêu sự phát triển có tính khách quan, tính phổ biến, tính kế thừa và tính đa dạng, phong phú."
+      },
+      {
+        question: "Tính kế thừa của sự phát triển nghĩa là gì?",
+        options: ["Cái mới phủ định sạch trơn cái cũ", "Cái mới giữ nguyên toàn bộ cái cũ", "Cái mới chọn lọc, cải tạo yếu tố còn phù hợp của cái cũ", "Cái mới ra đời từ hư vô"],
+        answer: 2,
+        explain: "Sự vật mới không đoạn tuyệt siêu hình với sự vật cũ, mà gạt bỏ mặt lỗi thời và giữ lại yếu tố còn tác dụng."
+      },
+      {
+        question: "Vì sao sự phát triển có thể quanh co, phức tạp và có bước lùi tương đối?",
+        options: ["Vì phát triển không có quy luật", "Vì phát triển là quá trình đi lên nhưng không thẳng tắp", "Vì cái mới luôn thất bại", "Vì mọi vận động đều đứng yên"],
+        answer: 1,
+        explain: "Giáo trình nêu phát triển có tính tiến lên theo đường xoáy ốc, vừa dần dần vừa có bước nhảy, nên quanh co và có thể có bước thụt lùi tương đối."
+      },
+      {
+        question: "Câu chốt đúng nhất khi vận dụng hai nguyên lý là gì?",
+        options: ["Nhìn sự vật cô lập và giữ nguyên cái cũ", "Nhìn sự vật trong hệ liên hệ và trong quá trình phát triển", "Chỉ cần học thuộc định nghĩa", "Phát triển chỉ là tăng số lượng"],
+        answer: 1,
+        explain: "Hai nguyên lý giúp tránh cách nhìn cô lập, phiến diện và bất biến; cần thấy sự vật trong mối liên hệ và xu hướng vận động, phát triển."
       }
     ];
 
@@ -2174,7 +2175,6 @@
     const quizFeedback = document.getElementById("quizFeedback");
     const quizPrev = document.getElementById("quizPrev");
     const quizNext = document.getElementById("quizNext");
-    const quizExplain = document.getElementById("quizExplain");
 
     function renderQuiz() {
       const quiz = quizBank[currentQuizIndex];
@@ -2194,8 +2194,9 @@
         const disabled = isAnswered ? "disabled" : "";
         return `<button class="quiz-option ${stateClass}" type="button" data-option-index="${index}" ${disabled}>${option}</button>`;
       }).join("");
+      quizFeedback.hidden = selected === null;
       quizFeedback.textContent = selected === null
-        ? "Mời lớp chọn đáp án. Sau đó bấm “Giải thích” nếu cần chốt ý."
+        ? ""
         : selected === quiz.answer
           ? `Đúng. ${quiz.explain}`
           : `Chưa đúng. Đáp án đúng là: ${quiz.options[quiz.answer]}. ${quiz.explain}`;
@@ -2228,9 +2229,6 @@
       }
     });
 
-    quizExplain.addEventListener("click", () => {
-      quizFeedback.textContent = quizBank[currentQuizIndex].explain;
-    });
 
     renderPrinciple("relation");
     renderQuiz();
