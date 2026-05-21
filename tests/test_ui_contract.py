@@ -61,6 +61,19 @@ class FocusUiContractTest(unittest.TestCase):
         self.assertNotIn("function applyHintQuestion(question)", js)
         self.assertNotIn('document.querySelectorAll("[data-hint-question]")', js)
 
+    def test_principles_module_has_methodological_conclusion_cards(self):
+        html = read("web/index.html")
+
+        module_start = html.index('<article class="module" data-content-module>')
+        module_end = html.index('</article>', module_start)
+        principles_module = html[module_start:module_end]
+
+        self.assertIn('class="principle-conclusion"', principles_module)
+        self.assertIn("Suy ra nguyên tắc toàn diện", principles_module)
+        self.assertIn("Suy ra nguyên tắc phát triển", html)
+        self.assertIn("principleConclusionTitle.textContent = data.conclusionTitle", html)
+        self.assertIn("principleConclusionText.textContent = data.conclusionText", html)
+
     def test_voicebot_streams_answer_text_without_summary(self):
         html = read("web/index.html")
         js = read("static/app.js")

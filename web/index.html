@@ -506,7 +506,7 @@
     }
 
     .content-slide .module.is-expanded > .principle-stage {
-      max-height: 560px;
+      max-height: 700px;
       padding-bottom: 18px !important;
     }
 
@@ -717,6 +717,28 @@
 
     .trait span {
       color: #34413b;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .principle-conclusion {
+      grid-column: 1 / -1;
+      display: grid;
+      gap: 6px;
+      padding: 16px 18px;
+      border: 1px solid rgba(15, 118, 110, 0.28);
+      border-left: 5px solid var(--teal);
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(15, 118, 110, 0.12), rgba(244, 181, 62, 0.14));
+    }
+
+    .principle-conclusion strong {
+      color: var(--teal);
+      font-size: 15px;
+    }
+
+    .principle-conclusion span {
+      color: #26332e;
       font-size: 13px;
       line-height: 1.55;
     }
@@ -1635,6 +1657,10 @@
                     </p>
                   </div>
                   <div class="trait-list" id="principleTraits" aria-live="polite"></div>
+                  <div class="principle-conclusion" aria-live="polite">
+                    <strong id="principleConclusionTitle">Suy ra nguyên tắc toàn diện</strong>
+                    <span id="principleConclusionText">Khi xem xét sự vật, hiện tượng phải đặt nó trong tổng thể các mối liên hệ, tránh nhìn phiến diện, một chiều.</span>
+                  </div>
                 </div>
               </article>
 
@@ -1932,6 +1958,8 @@
       relation: {
         name: "Mối liên hệ phổ biến",
         summary: "Sự vật, hiện tượng tồn tại trong các mối liên hệ qua lại, quy định, tác động, thâm nhập và chuyển hóa lẫn nhau. Không có đối tượng nào tồn tại hoàn toàn cô lập.",
+        conclusionTitle: "Suy ra nguyên tắc toàn diện",
+        conclusionText: "Khi xem xét sự vật, hiện tượng phải đặt nó trong tổng thể các mối liên hệ, tránh nhìn phiến diện, một chiều.",
         traits: [
           ["Khách quan", "Mối liên hệ không do ý muốn chủ quan tạo ra, mà do sự quy định và tác động qua lại của bản thân sự vật."],
           ["Phổ biến", "Tự nhiên, xã hội và tư duy đều tồn tại vô vàn mối liên hệ."],
@@ -1941,6 +1969,8 @@
       development: {
         name: "Sự phát triển",
         summary: "Phát triển là quá trình vận động theo khuynh hướng đi lên, thông qua bước nhảy, sự thay thế cái cũ bằng cái mới và sự giải quyết mâu thuẫn bên trong sự vật.",
+        conclusionTitle: "Suy ra nguyên tắc phát triển",
+        conclusionText: "Khi xem xét sự vật, hiện tượng phải thấy nó trong quá trình vận động, biến đổi và phát triển, tránh bảo thủ hoặc nóng vội.",
         traits: [
           ["Khách quan", "Nguồn gốc phát triển nằm trong chính bản thân sự vật, hiện tượng; không phụ thuộc vào ý muốn chủ quan của con người."],
           ["Phổ biến", "Sự phát triển có mặt trong mọi lĩnh vực: tự nhiên, xã hội và tư duy."],
@@ -2120,11 +2150,15 @@
     const principleName = document.getElementById("principleName");
     const principleSummary = document.getElementById("principleSummary");
     const principleTraits = document.getElementById("principleTraits");
+    const principleConclusionTitle = document.getElementById("principleConclusionTitle");
+    const principleConclusionText = document.getElementById("principleConclusionText");
 
     function renderPrinciple(key) {
       const data = principleData[key];
       principleName.textContent = data.name;
       principleSummary.textContent = data.summary;
+      principleConclusionTitle.textContent = data.conclusionTitle;
+      principleConclusionText.textContent = data.conclusionText;
       principleTraits.innerHTML = data.traits.map(([title, text]) => `
         <div class="trait">
           <strong>${title}</strong>
