@@ -151,9 +151,11 @@ async def speech_to_text(file: UploadFile = File(...)):
 @app.websocket("/ws/speech-to-text/live")
 async def live_speech_to_text(websocket: WebSocket):
     await websocket.accept()
+    print("[WS] Browser realtime connection accepted.")
 
     try:
         async with create_realtime_connection() as valsea_ws:
+            print("[WS] Connected to Valsea realtime.")
             await valsea_ws.send(get_realtime_start_message())
 
             async def forward_browser_audio():
@@ -204,8 +206,12 @@ async def live_speech_to_text(websocket: WebSocket):
                 with suppress(Exception):
                     await valsea_ws.close()
     except WebSocketDisconnect:
+        print("[WS] Browser disconnected.")
         return
     except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        print(f"[WS] Realtime bridge error: {exc}")
         with suppress(Exception):
             await websocket.send_json(
                 {
