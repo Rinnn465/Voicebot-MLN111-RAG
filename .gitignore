@@ -5,6 +5,8 @@ __pycache__/
 
 # Vector DB
 chroma_db/
+chroma_db_qwen_06b/
+models/
 
 # OS/editor
 .DS_Store

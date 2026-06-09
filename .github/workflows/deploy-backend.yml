@@ -1,0 +1,24 @@
+name: Deploy backend
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    branches: ["main"]
+    types: ["completed"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy RAG backend on home server
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: [self-hosted, voicebot-server]
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          clean: false
+
+      - name: Deploy backend
+        shell: powershell
+        run: .\scripts\deploy_backend_windows.ps1

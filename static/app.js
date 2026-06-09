@@ -13,6 +13,7 @@ const voiceHintPanel = document.getElementById("voiceHintPanel");
 let answerAudio = document.getElementById("answerAudio");
 
 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+const API_BASE_URL = normalizeBaseUrl(window.VOICEBOT_API_BASE_URL || "");
 
 micBtn.addEventListener("click", toggleMic);
 voiceHintBtn.addEventListener("click", toggleVoiceHints);
@@ -44,6 +45,21 @@ const stateConfig = {
   speaking: { label: "Speaking", icon: "volume-2", message: "Đang phát câu trả lời." },
   error: { label: "Error", icon: "triangle-alert", message: "Có lỗi xảy ra." },
 };
+
+function normalizeBaseUrl(url) {
+  return String(url || "").replace(/\/+$/, "");
+}
+
+function apiUrl(path) {
+  return `${API_BASE_URL}${path}`;
+}
+
+function websocketUrl(path) {
+  const baseUrl = API_BASE_URL || window.location.origin;
+  const url = new URL(path, baseUrl);
+  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+  return url.toString();
+}
 
 function setAvatarState(state) {
   document.body.dataset.avatarState = state;
@@ -186,7 +202,7 @@ async function askQuestion(options = {}) {
   resetAnswerAudio();
 
   try {
-    const response = await fetch("/ask", {
+    const response = await fetch(apiUrl("/ask"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question }),
@@ -313,8 +329,7 @@ function cleanupAudioPipeline() {
 }
 
 function openLiveSocket() {
-  const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-  liveSocket = new WebSocket(`${protocol}://${window.location.host}/ws/speech-to-text/live`);
+  liveSocket = new WebSocket(websocketUrl("/ws/speech-to-text/live"));
   liveSocketReady = false;
 
   liveSocket.addEventListener("message", async (event) => {
@@ -501,7 +516,7 @@ async function speakAnswer(text) {
   setVisualState("speaking", "Đang tạo giọng đọc câu trả lời...");
   window.voiceAvatar?.setSpeechText(text);
 
-  const response = await fetch("/text-to-speech", {
+  const response = await fetch(apiUrl("/text-to-speech"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text }),

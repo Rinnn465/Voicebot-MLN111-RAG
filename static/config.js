@@ -1,0 +1,1 @@
+window.VOICEBOT_API_BASE_URL = "";

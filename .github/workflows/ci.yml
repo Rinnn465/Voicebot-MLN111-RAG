@@ -25,7 +25,10 @@ jobs:
           pip install -r requirements.txt
 
       - name: Compile Python files
-        run: python -m compileall App.py Ingest.py Qwen_embeddings.py rag.py
+        run: python -m compileall App.py Ingest.py Qwen_embeddings.py RAG.py services
+
+      - name: Run tests
+        run: python -m unittest tests.test_prompt_contract tests.test_ui_contract
 
       - name: Smoke test FastAPI routes
         run: |
