@@ -7,12 +7,12 @@ services:
     env_file:
       - .env
     environment:
-      CHROMA_DIR: ${CHROMA_DIR:-/app/chroma_db_qwen_06b}
+      CHROMA_DIR: ${CHROMA_DIR:-/app/chroma_db}
       SENTENCE_TRANSFORMERS_HOME: ${SENTENCE_TRANSFORMERS_HOME:-/app/models/sentence_transformers}
       EMBEDDING_DEVICE: ${EMBEDDING_DEVICE:-cpu}
       EMBEDDING_BATCH_SIZE: ${EMBEDDING_BATCH_SIZE:-1}
     volumes:
-      - chroma-data:/app/chroma_db_qwen_06b
+      - chroma-data:/app/chroma_db
       - model-cache:/app/models
     expose:
       - "8000"
@@ -21,7 +21,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 120s
+      start_period: 20m
 
   caddy:
     image: caddy:2.8-alpine

@@ -6,7 +6,10 @@ from sentence_transformers import SentenceTransformer
 
 class Qwen3Embedding4B:
     def __init__(self):
-        model_name = os.getenv("EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-0.6B")
+        model_name = os.getenv(
+            "EMBEDDING_MODEL",
+            "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        )
         device = os.getenv("EMBEDDING_DEVICE", "cpu")
         cache_folder = os.getenv("SENTENCE_TRANSFORMERS_HOME") or None
         self.batch_size = int(os.getenv("EMBEDDING_BATCH_SIZE", "1"))
