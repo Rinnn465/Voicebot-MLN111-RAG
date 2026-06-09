@@ -1,0 +1,47 @@
+services:
+  rag-api:
+    build:
+      context: .
+    container_name: voicebot-rag-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      CHROMA_DIR: ${CHROMA_DIR:-/app/chroma_db_qwen_06b}
+      SENTENCE_TRANSFORMERS_HOME: ${SENTENCE_TRANSFORMERS_HOME:-/app/models/sentence_transformers}
+      EMBEDDING_DEVICE: ${EMBEDDING_DEVICE:-cpu}
+      EMBEDDING_BATCH_SIZE: ${EMBEDDING_BATCH_SIZE:-1}
+    volumes:
+      - chroma-data:/app/chroma_db_qwen_06b
+      - model-cache:/app/models
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: voicebot-rag-caddy
+    restart: unless-stopped
+    depends_on:
+      rag-api:
+        condition: service_healthy
+    environment:
+      BACKEND_DOMAIN: ${BACKEND_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  chroma-data:
+  model-cache:
+  caddy-data:
+  caddy-config:

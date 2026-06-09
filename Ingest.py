@@ -22,10 +22,6 @@ def ingest_markdown(
     if not md_file.exists():
         raise FileNotFoundError(f"Không tìm thấy file Markdown: {md_file}")
 
-    api_key = os.getenv("GEMINI_API_KEY") 
-    if not api_key:
-        raise ValueError("Thiếu GEMINI_API_KEY trong file .env")
-
     loader = TextLoader(str(md_file), encoding="utf-8")
     docs = loader.load()
 

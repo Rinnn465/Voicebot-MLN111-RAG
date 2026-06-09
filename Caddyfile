@@ -1,0 +1,5 @@
+{$BACKEND_DOMAIN} {
+    encode gzip
+
+    reverse_proxy rag-api:8000
+}
