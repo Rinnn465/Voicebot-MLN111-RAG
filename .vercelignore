@@ -16,7 +16,7 @@ __pycache__/
 *.pyc
 chroma_db/
 chroma_db_qwen_06b/
-models/
+/models/
 
 # CI/CD and server scripts
 .github/
